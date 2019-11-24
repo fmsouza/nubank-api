@@ -37,34 +37,34 @@ const PASSWORD = 'your-awesome-password';
 
 ## API
 
-# new NubankApi(accessToken: string, routes: Routes)
+### new NubankApi(accessToken: string, routes: Routes)
 
 The constructor takes an access token and an object containing some routes, which are received after the login operation. This avoids extra requests for login to be executed because it can cause your account to be blocked from logging in for up to 72h in this IP.
 
-# login(cpf: string, password: string, secondStepFn: UUIDProcessingCallback): Promise<AuthState>
+### login(cpf: string, password: string, secondStepFn: UUIDProcessingCallback): Promise<AuthState>
 
 Executes the login procedure and generates an authentication code, which needs to be used to generate a QR code and be read by the user's phone, so the access token attached to the requests can be activated. This callback must return a `Promise`, so using an `async function` is a good call there. Use it to render the auth code as a QR code, and resolve only after the user read the QR code with the phone.
 
-# getCardFeed(): Promise<Transaction[]>
+### getCardFeed(): Promise<Transaction[]>
 
 Retrieves the list of credit card operations.
 
-# getCardTransactions(): Promise<Transaction[]>
+### getCardTransactions(): Promise<Transaction[]>
 
 Retrieves the entire history of credit card transactions since the first use of the cards.
 
-# getBills(): Promise<Bill[]>
+### getBills(): Promise<Bill[]>
 
 Retrieves a list with all the bills created with the user's transactions since the first use, until the future charges.
 
-# getAccountBalance(): Promise<number>
+### getAccountBalance(): Promise<number>
 
 Retrieves the NuConta balance.
 
-# getAccountFeed(): Promise<AccountTransaction[]>
+### getAccountFeed(): Promise<AccountTransaction[]>
 
 Retrieves the list of debit card and account operations.
 
-# getAccountTransactions(): Promise<AccountTransaction[]>
+### getAccountTransactions(): Promise<AccountTransaction[]>
 
 Retrieves the entire history of debit card and transfer transactions since the first use of the NuConta.
