@@ -2,22 +2,22 @@ import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
 
 import {
+  AccountTransaction,
   AuthState,
+  Bill,
   CustomParams,
   Routes,
-  UUIDProcessingCallback,
   Transaction,
-  Bill,
-  AccountTransaction
+  UUIDProcessingCallback
 } from "./types";
 
 import {
   CLIENT_SECRET,
-  DISCOVERY_URL,
   DISCOVERY_APP_URL,
-  HEADERS,
+  DISCOVERY_URL,
   GRAPHQL_QUERY_ACCOUNT_BALANCE,
   GRAPHQL_QUERY_ACCOUNT_FEED,
+  HEADERS,
   PAYMENT_EVENT_TYPES
 } from "./constants";
 
@@ -41,19 +41,19 @@ export default class NubankApi {
     secondStepFn: UUIDProcessingCallback
   ): Promise<AuthState> {
     const url = await this.getUrl("login");
-    if (this.accessToken && this.privateUrls) return this.authState;
+    if (this.accessToken && this.privateUrls) { return this.authState; }
 
     const options: any = {
-      method: "post",
-      url,
-      headers: HEADERS,
       data: {
-        login: cpf,
-        password,
-        grant_type: "password",
         client_id: "other.conta",
-        client_secret: CLIENT_SECRET
-      }
+        client_secret: CLIENT_SECRET,
+        grant_type: "password",
+        login: cpf,
+        password
+      },
+      headers: HEADERS,
+      method: "post",
+      url
     };
     const { data } = await axios(options);
     this.accessToken = data.access_token;
@@ -100,11 +100,11 @@ export default class NubankApi {
   private async __authenticateWithQRCode(
     secondStepFn: UUIDProcessingCallback
   ): Promise<any> {
-    const qr_code_id: string = uuidv4();
-    await secondStepFn(qr_code_id);
+    const uuid: string = uuidv4();
+    await secondStepFn(uuid);
 
     const payload: CustomParams<string> = {
-      qr_code_id,
+      qr_code_id: uuid,
       type: "login-webapp"
     };
 
@@ -123,7 +123,7 @@ export default class NubankApi {
 
   private async ready(): Promise<void> {
     const numberOfUrls: number = Object.keys(this.publicUrls).length;
-    if (numberOfUrls > 0) return;
+    if (numberOfUrls > 0) { return; }
     const [baseUrls, appUrls] = await Promise.all([
       axios.get(DISCOVERY_URL).then(r => r.data),
       axios.get(DISCOVERY_APP_URL).then(r => r.data)
@@ -133,8 +133,8 @@ export default class NubankApi {
 
   private async getUrl(id: string): Promise<string> {
     await this.ready();
-    if (this.publicUrls[id]) return this.publicUrls[id];
-    if (this.privateUrls[id]) return this.privateUrls[id].href;
+    if (this.publicUrls[id]) { return this.publicUrls[id]; }
+    if (this.privateUrls[id]) { return this.privateUrls[id].href; }
     throw new Error(`URL for '${id}' does not exist.`);
   }
 
@@ -151,14 +151,14 @@ export default class NubankApi {
     const url: string = this.isUrl(id) ? id : await this.getUrl(id);
 
     const options: any = {
-      method,
-      url,
+      data: body,
       headers: {
         ...HEADERS,
         Authorization: `Bearer ${this.accessToken}`
       },
-      data: body,
-      params
+      method,
+      params,
+      url
     };
     const { data } = await axios(options);
     return data;
@@ -166,7 +166,7 @@ export default class NubankApi {
 
   private async getBillDetails(bill: Bill): Promise<Bill> {
     const url: string = bill?._links?.self?.href || "";
-    if (!url) return bill;
+    if (!url) { return bill; }
     const response: any = await this.__request("get", url);
     return response.bill;
   }

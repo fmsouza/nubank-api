@@ -1,12 +1,19 @@
-export type CustomParams<T> = { [key: string]: T };
+export interface CustomParams<T> {
+  [key: string]: T;
+}
 
 export type Routes = CustomParams<Route>;
 
 export type UUIDProcessingCallback = (uuid: string) => Promise<void>;
 
-export type AuthState = { accessToken: string; urls: Routes };
+export interface AuthState {
+  accessToken: string;
+  urls: Routes;
+}
 
-type Route = { href: string };
+interface Route {
+  href: string;
+}
 
 export interface Transaction {
   category: string;
@@ -29,11 +36,18 @@ interface TransactionDetails {
   subcategory?: string;
 }
 
-type TransactionCharges = { count: number; amount: number };
+interface TransactionCharges {
+  count: number;
+  amount: number;
+}
 
-type InternalLink = { self: ResourceHref };
+interface InternalLink {
+  self: ResourceHref;
+}
 
-type ResourceHref = { href: string };
+interface ResourceHref {
+  href: string;
+}
 
 interface ForeignTransaction {
   currency_origin: string;
@@ -70,12 +84,12 @@ interface BillSummary {
   open_date: string;
 }
 
-type BillLinks = {
+interface BillLinks {
   self?: ResourceHref;
   barcode?: ResourceHref;
   boleto_email?: ResourceHref;
   invoice_email?: ResourceHref;
-};
+}
 
 interface BillLineItem {
   amount: number;
