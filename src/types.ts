@@ -4,7 +4,7 @@ export type Routes = CustomParams<Route>;
 
 export type UUIDProcessingCallback = (uuid: string) => Promise<void>;
 
-export type AuthState = { accessToken: string, urls: Routes };
+export type AuthState = { accessToken: string; urls: Routes };
 
 type Route = { href: string };
 
@@ -29,7 +29,7 @@ interface TransactionDetails {
   subcategory?: string;
 }
 
-type TransactionCharges = { count: number, amount: number };
+type TransactionCharges = { count: number; amount: number };
 
 type InternalLink = { self: ResourceHref };
 
@@ -70,7 +70,12 @@ interface BillSummary {
   open_date: string;
 }
 
-type BillLinks = { self?: ResourceHref, barcode?: ResourceHref, boleto_email?: ResourceHref, invoice_email?: ResourceHref };
+type BillLinks = {
+  self?: ResourceHref;
+  barcode?: ResourceHref;
+  boleto_email?: ResourceHref;
+  invoice_email?: ResourceHref;
+};
 
 interface BillLineItem {
   amount: number;
