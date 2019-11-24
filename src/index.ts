@@ -30,7 +30,7 @@ export default class NubankApi {
   }
 
   public constructor(
-    private accessToken: string = '',
+    private accessToken: string = "",
     private privateUrls: Routes = {},
     private publicUrls: CustomParams<string> = {}
   ) {}
@@ -41,7 +41,9 @@ export default class NubankApi {
     secondStepFn: UUIDProcessingCallback
   ): Promise<AuthState> {
     const url = await this.getUrl("login");
-    if (this.accessToken && this.privateUrls) { return this.authState; }
+    if (this.accessToken && this.privateUrls) {
+      return this.authState;
+    }
 
     const options: any = {
       data: {
@@ -123,7 +125,9 @@ export default class NubankApi {
 
   private async ready(): Promise<void> {
     const numberOfUrls: number = Object.keys(this.publicUrls).length;
-    if (numberOfUrls > 0) { return; }
+    if (numberOfUrls > 0) {
+      return;
+    }
     const [baseUrls, appUrls] = await Promise.all([
       axios.get(DISCOVERY_URL).then(r => r.data),
       axios.get(DISCOVERY_APP_URL).then(r => r.data)
@@ -133,8 +137,12 @@ export default class NubankApi {
 
   private async getUrl(id: string): Promise<string> {
     await this.ready();
-    if (this.publicUrls[id]) { return this.publicUrls[id]; }
-    if (this.privateUrls[id]) { return this.privateUrls[id].href; }
+    if (this.publicUrls[id]) {
+      return this.publicUrls[id];
+    }
+    if (this.privateUrls[id]) {
+      return this.privateUrls[id].href;
+    }
     throw new Error(`URL for '${id}' does not exist.`);
   }
 
@@ -166,7 +174,9 @@ export default class NubankApi {
 
   private async getBillDetails(bill: Bill): Promise<Bill> {
     const url: string = bill?._links?.self?.href || "";
-    if (!url) { return bill; }
+    if (!url) {
+      return bill;
+    }
     const response: any = await this.__request("get", url);
     return response.bill;
   }
