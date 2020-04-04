@@ -29,7 +29,7 @@ interface NubankApiConstructor {
   accessToken?: string;
   privateUrls?: Routes;
   publicUrls?: CustomParams<string>;
-  options: ApiOptions;
+  options?: ApiOptions;
 }
 
 export default class NubankApi {
@@ -47,7 +47,7 @@ export default class NubankApi {
     };
   }
 
-  public constructor(params: NubankApiConstructor) {
+  public constructor(params: NubankApiConstructor = {}) {
     if (params.accessToken) {
       this.accessToken = params.accessToken;
     }
