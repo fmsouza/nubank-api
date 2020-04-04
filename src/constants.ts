@@ -10,7 +10,7 @@ export const HEADERS: { [key: string]: string } = {
   "Content-Type": "application/json",
   "User-Agent":
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36",
-  "X-Correlation-Id": "WEB-APP.pewW9"
+  "X-Correlation-Id": "WEB-APP.pewW9",
 };
 
 export const GRAPHQL_QUERY_ACCOUNT_BALANCE: string = `
@@ -65,5 +65,5 @@ export const PAYMENT_EVENT_TYPES = [
   "TransferOutReversalEvent",
   "BarcodePaymentEvent",
   "DebitPurchaseEvent",
-  "DebitPurchaseReversalEvent"
+  "DebitPurchaseReversalEvent",
 ];
