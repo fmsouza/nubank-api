@@ -8,7 +8,7 @@ import {
   CustomParams,
   Routes,
   Transaction,
-  UUIDProcessingCallback
+  UUIDProcessingCallback,
 } from "./types";
 
 import {
@@ -18,22 +18,49 @@ import {
   GRAPHQL_QUERY_ACCOUNT_BALANCE,
   GRAPHQL_QUERY_ACCOUNT_FEED,
   HEADERS,
-  PAYMENT_EVENT_TYPES
+  PAYMENT_EVENT_TYPES,
 } from "./constants";
 
+interface ApiOptions {
+  uuidAdapter: () => string;
+}
+
+interface NubankApiConstructor {
+  accessToken?: string;
+  privateUrls?: Routes;
+  publicUrls?: CustomParams<string>;
+  options: ApiOptions;
+}
+
 export default class NubankApi {
+  private accessToken: string = "";
+  private privateUrls: Routes = {};
+  private publicUrls: CustomParams<string> = {};
+  private options: ApiOptions = {
+    uuidAdapter: uuidv4,
+  };
+
   private get authState(): AuthState {
     return {
       accessToken: this.accessToken,
-      urls: this.privateUrls
+      urls: this.privateUrls,
     };
   }
 
-  public constructor(
-    private accessToken: string = "",
-    private privateUrls: Routes = {},
-    private publicUrls: CustomParams<string> = {}
-  ) {}
+  public constructor(params: NubankApiConstructor) {
+    if (params.accessToken) {
+      this.accessToken = params.accessToken;
+    }
+    if (params.privateUrls) {
+      this.privateUrls = params.privateUrls;
+    }
+    if (params.publicUrls) {
+      this.publicUrls = params.publicUrls;
+    }
+    if (params.options) {
+      this.options = params.options;
+    }
+  }
 
   public async login(
     cpf: string,
@@ -51,11 +78,11 @@ export default class NubankApi {
         client_secret: CLIENT_SECRET,
         grant_type: "password",
         login: cpf,
-        password
+        password,
       },
       headers: HEADERS,
       method: "post",
-      url
+      url,
     };
     const { data } = await axios(options);
     this.accessToken = data.access_token;
@@ -64,17 +91,17 @@ export default class NubankApi {
   }
 
   public getCardFeed(): Promise<Transaction[]> {
-    return this.__request("get", "events").then(data => data.events);
+    return this.__request("get", "events").then((data) => data.events);
   }
 
   public getCardTransactions(): Promise<Transaction[]> {
-    return this.getCardFeed().then(feed =>
-      feed.filter(statement => statement.category === "transaction")
+    return this.getCardFeed().then((feed) =>
+      feed.filter((statement) => statement.category === "transaction")
     );
   }
 
   public getBills(): Promise<Bill[]> {
-    return this.__request("get", "bills_summary").then(data =>
+    return this.__request("get", "bills_summary").then((data) =>
       Promise.all(data.bills.map((bill: Bill) => this.getBillDetails(bill)))
     );
   }
@@ -92,8 +119,8 @@ export default class NubankApi {
   }
 
   public getAccountTransactions(): Promise<AccountTransaction[]> {
-    return this.getAccountFeed().then(feed =>
-      feed.filter(statement =>
+    return this.getAccountFeed().then((feed) =>
+      feed.filter((statement) =>
         PAYMENT_EVENT_TYPES.includes(statement.__typename)
       )
     );
@@ -102,12 +129,12 @@ export default class NubankApi {
   private async __authenticateWithQRCode(
     secondStepFn: UUIDProcessingCallback
   ): Promise<any> {
-    const uuid: string = uuidv4();
+    const uuid: string = this.options.uuidAdapter();
     await secondStepFn(uuid);
 
     const payload: CustomParams<string> = {
       qr_code_id: uuid,
-      type: "login-webapp"
+      type: "login-webapp",
     };
 
     const { access_token, _links } = await this.__request(
@@ -118,7 +145,7 @@ export default class NubankApi {
     this.accessToken = access_token;
     this.privateUrls = {
       ...this.privateUrls,
-      ..._links
+      ..._links,
     };
     return this.authState;
   }
@@ -129,8 +156,8 @@ export default class NubankApi {
       return;
     }
     const [baseUrls, appUrls] = await Promise.all([
-      axios.get(DISCOVERY_URL).then(r => r.data),
-      axios.get(DISCOVERY_APP_URL).then(r => r.data)
+      axios.get(DISCOVERY_URL).then((r) => r.data),
+      axios.get(DISCOVERY_APP_URL).then((r) => r.data),
     ]);
     this.publicUrls = { ...baseUrls, ...appUrls };
   }
@@ -162,11 +189,11 @@ export default class NubankApi {
       data: body,
       headers: {
         ...HEADERS,
-        Authorization: `Bearer ${this.accessToken}`
+        Authorization: `Bearer ${this.accessToken}`,
       },
       method,
       params,
-      url
+      url,
     };
     const { data } = await axios(options);
     return data;
