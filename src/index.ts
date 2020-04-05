@@ -65,8 +65,8 @@ export default class NubankApi {
   public async login(
     cpf: string,
     password: string,
-    secondStepFn: UUIDProcessingCallback
-  ): Promise<AuthState> {
+    validateCallback?: UUIDProcessingCallback
+  ): Promise<AuthState | string> {
     const url = await this.getUrl("login");
     if (this.accessToken && this.privateUrls) {
       return this.authState;
@@ -87,7 +87,10 @@ export default class NubankApi {
     const { data } = await axios(options);
     this.accessToken = data.access_token;
     this.privateUrls = data._links;
-    return this.__authenticateWithQRCode(secondStepFn);
+    const uuid: string = this.options.uuidAdapter();
+    if (!validateCallback) return uuid;
+    await validateCallback(uuid);
+    return this.validateLogin(uuid);
   }
 
   public getCardFeed(): Promise<Transaction[]> {
@@ -126,14 +129,9 @@ export default class NubankApi {
     );
   }
 
-  private async __authenticateWithQRCode(
-    secondStepFn: UUIDProcessingCallback
-  ): Promise<any> {
-    const uuid: string = this.options.uuidAdapter();
-    await secondStepFn(uuid);
-
+  public async validateLogin(code: string): Promise<AuthState> {
     const payload: CustomParams<string> = {
-      qr_code_id: uuid,
+      qr_code_id: code,
       type: "login-webapp",
     };
 
