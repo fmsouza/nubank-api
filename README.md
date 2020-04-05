@@ -25,10 +25,10 @@ const PASSWORD = "your-awesome-password";
   const api = new NubankApi();
 
   // or add the accessToken and the privateUrls in case you already have them
-  const { accessToken, privateUrls } = readCache();
-  const api = new NubankApi({ accessToken, privateUrls });
+  const { accessToken, privateUrls, publicUrls } = readCache();
+  const api = new NubankApi({ accessToken, privateUrls, publicUrls });
 
-  const { accessToken, urls } = await api.login(
+  const { accessToken, privateUrls, publicUrls } = await api.login(
     CPF,
     PASSWORD,
     async (authCode) => {
@@ -39,7 +39,7 @@ const PASSWORD = "your-awesome-password";
       );
     }
   );
-  saveToCache({ accessToken, urls }); // Better cache that, because making too many login requests results in a 429 error
+  saveToCache({ accessToken, privateUrls, publicUrls }); // Better cache that, because making too many login requests results in a 429 error
 
   // Now you are ready to access your account :)
 })();
