@@ -8,7 +8,8 @@ export type UUIDProcessingCallback = (uuid: string) => Promise<void>;
 
 export interface AuthState {
   accessToken: string;
-  urls: Routes;
+  privateUrls: Routes;
+  publicUrls: CustomParams<string>;
 }
 
 interface Route {

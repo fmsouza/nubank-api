@@ -43,7 +43,8 @@ export default class NubankApi {
   private get authState(): AuthState {
     return {
       accessToken: this.accessToken,
-      urls: this.privateUrls,
+      privateUrls: this.privateUrls,
+      publicUrls: this.publicUrls,
     };
   }
 
