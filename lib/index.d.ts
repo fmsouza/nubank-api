@@ -15,14 +15,14 @@ export default class NubankApi {
     private options;
     private get authState();
     constructor(params?: NubankApiConstructor);
-    login(cpf: string, password: string, secondStepFn: UUIDProcessingCallback): Promise<AuthState>;
+    login(cpf: string, password: string, validateCallback?: UUIDProcessingCallback): Promise<AuthState | string>;
     getCardFeed(): Promise<Transaction[]>;
     getCardTransactions(): Promise<Transaction[]>;
     getBills(): Promise<Bill[]>;
     getAccountBalance(): Promise<number>;
     getAccountFeed(): Promise<AccountTransaction[]>;
     getAccountTransactions(): Promise<AccountTransaction[]>;
-    private __authenticateWithQRCode;
+    validateLogin(code: string): Promise<AuthState>;
     private ready;
     private getUrl;
     private isUrl;
