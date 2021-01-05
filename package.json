@@ -28,7 +28,7 @@
   },
   "homepage": "https://github.com/fmsouza/nubank-api#readme",
   "dependencies": {
-    "axios": "0.19.2"
+    "axios": "0.21.1"
   },
   "peerDependencies": {
     "uuid": ">3.0.0"
