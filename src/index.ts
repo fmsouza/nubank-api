@@ -8,7 +8,6 @@ import {
   CustomParams,
   Routes,
   Transaction,
-  UUIDProcessingCallback,
 } from "./types";
 
 import {
@@ -33,12 +32,10 @@ interface NubankApiConstructor {
 }
 
 export default class NubankApi {
-  private accessToken: string = "";
-  private privateUrls: Routes = {};
-  private publicUrls: CustomParams<string> = {};
-  private options: ApiOptions = {
-    uuidAdapter: uuidv4,
-  };
+  private accessToken: string;
+  private privateUrls: Routes;
+  private publicUrls: CustomParams<string>;
+  private options: ApiOptions;;
 
   private get authState(): AuthState {
     return {
@@ -49,29 +46,19 @@ export default class NubankApi {
   }
 
   public constructor(params: NubankApiConstructor = {}) {
-    if (params.accessToken) {
-      this.accessToken = params.accessToken;
-    }
-    if (params.privateUrls) {
-      this.privateUrls = params.privateUrls;
-    }
-    if (params.publicUrls) {
-      this.publicUrls = params.publicUrls;
-    }
-    if (params.options) {
-      this.options = params.options;
-    }
+    this.accessToken = params?.accessToken ?? "";
+    this.privateUrls = params?.privateUrls ?? {};
+    this.publicUrls = params?.publicUrls ?? {};
+    this.options = params?.options ?? {
+      uuidAdapter: uuidv4
+    };
   }
 
   public async login(
     cpf: string,
-    password: string,
-    validateCallback?: UUIDProcessingCallback
-  ): Promise<AuthState | string> {
+    password: string
+  ): Promise<string> {
     const url = await this.getUrl("login");
-    if (this.accessToken && this.privateUrls) {
-      return this.authState;
-    }
 
     const options: any = {
       data: {
@@ -88,10 +75,26 @@ export default class NubankApi {
     const { data } = await axios(options);
     this.accessToken = data.access_token;
     this.privateUrls = data._links;
-    const uuid: string = this.options.uuidAdapter();
-    if (!validateCallback) return uuid;
-    await validateCallback(uuid);
-    return this.validateLogin(uuid);
+    return this.options.uuidAdapter();
+  }
+
+  public async validateLogin(code: string): Promise<AuthState> {
+    const payload: CustomParams<string> = {
+      qr_code_id: code,
+      type: "login-webapp",
+    };
+
+    const { access_token, _links } = await this.__request(
+      "post",
+      "lift",
+      payload
+    );
+    this.accessToken = access_token;
+    this.privateUrls = {
+      ...this.privateUrls,
+      ..._links,
+    };
+    return this.authState;
   }
 
   public getCardFeed(): Promise<Transaction[]> {
@@ -128,25 +131,6 @@ export default class NubankApi {
         PAYMENT_EVENT_TYPES.includes(statement.__typename)
       )
     );
-  }
-
-  public async validateLogin(code: string): Promise<AuthState> {
-    const payload: CustomParams<string> = {
-      qr_code_id: code,
-      type: "login-webapp",
-    };
-
-    const { access_token, _links } = await this.__request(
-      "post",
-      "lift",
-      payload
-    );
-    this.accessToken = access_token;
-    this.privateUrls = {
-      ...this.privateUrls,
-      ..._links,
-    };
-    return this.authState;
   }
 
   private async ready(): Promise<void> {
@@ -199,7 +183,7 @@ export default class NubankApi {
   }
 
   private async getBillDetails(bill: Bill): Promise<Bill> {
-    const url: string = bill?._links?.self?.href || "";
+    const url: string = bill?._links?.self?.href ?? "";
     if (!url) {
       return bill;
     }
