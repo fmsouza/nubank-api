@@ -4,8 +4,6 @@ export interface CustomParams<T> {
 
 export type Routes = CustomParams<Route>;
 
-export type UUIDProcessingCallback = (uuid: string) => Promise<void>;
-
 export interface AuthState {
   accessToken: string;
   privateUrls: Routes;
