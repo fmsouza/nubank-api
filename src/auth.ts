@@ -12,14 +12,17 @@ export class Auth {
     cpf: string,
     password: string
   ): Promise<void> {
-    const { data } = await this._context.http.request("post", "login", {
+    const data = await this._context.http.request("post", "login", {
       client_id: "other.conta",
       client_secret: CLIENT_SECRET,
       grant_type: "password",
       login: cpf,
       password,
     });
+
     this._context.http.accessToken = data?.access_token;
+    this._context.http.refreshToken = data?.refresh_token;
+    this._context.http.refreshBefore = data?.refresh_before;
     this._context.http.privateUrls = data?._links;
   }
 

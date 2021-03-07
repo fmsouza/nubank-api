@@ -15,6 +15,7 @@ export type Routes = Record<string, Route>;
 export interface AuthState {
   accessToken?: string;
   refreshToken?: string;
+  refreshBefore?: Date;
   privateUrls: Routes;
   publicUrls: Record<string, string>;
 }
@@ -23,6 +24,7 @@ interface HttpConstructor {
   certPath?: string;
   accessToken?: string;
   refreshToken?: string;
+  refreshBefore?: string;
   privateUrls?: Routes;
   publicUrls?: Record<string, string>;
 }
@@ -30,6 +32,7 @@ interface HttpConstructor {
 export class Http {
   private _accessToken: string = "";
   private _refreshToken: string = "";
+  private _refreshBefore?: Date;
   private _privateUrls: Routes;
   private _publicUrls: Record<string, string>;
 
@@ -37,6 +40,7 @@ export class Http {
     return {
       accessToken: this._accessToken,
       refreshToken: this._refreshToken,
+      refreshBefore: this._refreshBefore,
       privateUrls: this._privateUrls,
       publicUrls: this._publicUrls,
     };
@@ -50,6 +54,10 @@ export class Http {
     this._refreshToken = refreshToken;
   }
 
+  public set refreshBefore(datetime: string) {
+    this._refreshBefore = new Date(datetime);
+  }
+
   public set privateUrls(privateUrls: Routes) {
     this._privateUrls = privateUrls;
   }
@@ -57,6 +65,7 @@ export class Http {
   public constructor(params: HttpConstructor = {}) {
     this.accessToken = params?.accessToken ?? "";
     this.refreshToken = params?.refreshToken ?? "";
+    this.refreshBefore = params?.refreshBefore ?? "";
     this._privateUrls = params?.privateUrls ?? {};
     this._publicUrls = params?.publicUrls ?? {};
   }
@@ -97,9 +106,8 @@ export class Http {
     return data;
   }
 
-  public async graphql(query: string, variables?: any): Promise<any> {
-    const { data } = await this.request("post", "ghostflame", { query, variables });
-    return data;
+  public graphql(query: string, variables?: any): Promise<any> {
+    return this.request("post", "ghostflame", { query, variables });
   }
 
   public async getUrl(id: string): Promise<string> {
