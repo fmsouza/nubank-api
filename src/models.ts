@@ -44,7 +44,7 @@ export interface PixKey {
   badge: string;
 }
 
-export interface Transaction {
+export interface CardTransaction {
   category: string;
   time: string;
   title: string;

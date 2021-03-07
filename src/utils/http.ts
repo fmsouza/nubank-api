@@ -4,7 +4,7 @@ import {
   DISCOVERY_APP_URL,
   DISCOVERY_URL,
   HEADERS,
-} from "./constants";
+} from "../constants";
 
 interface Route {
   href: string;
