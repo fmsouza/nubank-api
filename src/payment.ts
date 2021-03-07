@@ -1,4 +1,4 @@
-import { Boleto, MoneyRequest } from './models';
+import { Boleto, MoneyRequest, PixKey, PixPaymentRequest } from './models';
 import { Context } from './context';
 import * as GqlOperations from './utils/graphql-operations';
 
@@ -22,7 +22,7 @@ export class Payment {
     const savingsAccountId: string = await this._context.account.getId();
 
     const input = {
-      amount: String(amount),
+      amount,
       savingsAccountId
     };
 
@@ -30,15 +30,16 @@ export class Payment {
     return moneyRequestData?.createMoneyRequest;
   }
 
-  public async createPixPaymentRequest(amount: number): Promise<MoneyRequest> {
+  public async createPixPaymentRequest(pixKey: PixKey, amount: number): Promise<PixPaymentRequest> {
     const savingsAccountId: string = await this._context.account.getId();
 
-    const input = {
-      amount: String(amount),
+    const createPaymentRequestInput = {
+      amount,
+      pixAlias: pixKey.value,
       savingsAccountId
     };
 
-    const { data: moneyRequestData } = await this._context.http.graphql(GqlOperations.MUTATION_CREATE_MONEY_REQUEST, { input });
+    const { data: moneyRequestData } = await this._context.http.graphql(GqlOperations.MUTATION_CREATE_MONEY_REQUEST, { createPaymentRequestInput });
     return moneyRequestData?.createMoneyRequest;
   }
 }

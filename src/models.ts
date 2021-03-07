@@ -44,6 +44,16 @@ export interface PixKey {
   badge: string;
 }
 
+export interface PixPaymentRequest {
+  id: string;
+  amount: number;
+  message: string;
+  url: string;
+  transactionId: string;
+  pixAlias: string;
+  brcode: string
+}
+
 export interface CardTransaction {
   category: string;
   time: string;
