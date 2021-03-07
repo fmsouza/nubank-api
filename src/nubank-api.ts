@@ -20,7 +20,7 @@ interface NubankApiConstructor {
   options?: ApiOptions;
 }
 
-export default class NubankApi implements Context {
+export class NubankApi implements Context {
   private _http: Http;
   private options: ApiOptions;
 
