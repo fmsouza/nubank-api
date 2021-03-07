@@ -2,7 +2,6 @@ import axios from 'axios';
 
 import {
   AuthState,
-  CustomParams,
   Routes,
 } from "./types";
 
@@ -15,30 +14,38 @@ import {
 interface HttpConstructor {
   accessToken?: string;
   privateUrls?: Routes;
-  publicUrls?: CustomParams<string>;
+  publicUrls?: Record<string, string>;
 }
 
 export class Http {
-  private accessToken: string;
-  private privateUrls: Routes;
-  private publicUrls: CustomParams<string>;
+  private _accessToken: string = "";
+  private _privateUrls: Routes;
+  private _publicUrls: Record<string, string>;
 
-  private get authState(): AuthState {
+  public get authState(): AuthState {
     return {
-      accessToken: this.accessToken,
-      privateUrls: this.privateUrls,
-      publicUrls: this.publicUrls,
+      accessToken: this._accessToken,
+      privateUrls: this._privateUrls,
+      publicUrls: this._publicUrls,
     };
+  }
+
+  public set accessToken(accessToken: string) {
+    this._accessToken = accessToken ?? "";
+  }
+
+  public set privateUrls(privateUrls: Routes) {
+    this._privateUrls = privateUrls ?? {};
   }
 
   public constructor(params: HttpConstructor = {}) {
     this.accessToken = params?.accessToken ?? "";
-    this.privateUrls = params?.privateUrls ?? {};
-    this.publicUrls = params?.publicUrls ?? {};
+    this._privateUrls = params?.privateUrls ?? {};
+    this._publicUrls = params?.publicUrls ?? {};
   }
 
   public async ready(): Promise<void> {
-    const numberOfUrls: number = Object.keys(this.publicUrls).length;
+    const numberOfUrls: number = Object.keys(this._publicUrls).length;
     if (numberOfUrls > 0) {
       return;
     }
@@ -46,7 +53,7 @@ export class Http {
       axios.get(DISCOVERY_URL).then((r) => r.data),
       axios.get(DISCOVERY_APP_URL).then((r) => r.data),
     ]);
-    this.publicUrls = { ...baseUrls, ...appUrls };
+    this._publicUrls = { ...baseUrls, ...appUrls };
   }
 
   public async request(
@@ -61,7 +68,7 @@ export class Http {
       data: body,
       headers: {
         ...HEADERS,
-        Authorization: `Bearer ${this.accessToken}`,
+        Authorization: this._accessToken && `Bearer ${this._accessToken}`,
       },
       method,
       params,
@@ -71,13 +78,18 @@ export class Http {
     return data;
   }
 
+  public async graphql(query: string): Promise<any> {
+    const { data } = await this.request("post", "ghostflame", { query });
+    return data;
+  }
+
   public async getUrl(id: string): Promise<string> {
     await this.ready();
-    if (this.publicUrls[id]) {
-      return this.publicUrls[id];
+    if (this._publicUrls[id]) {
+      return this._publicUrls[id];
     }
-    if (this.privateUrls[id]) {
-      return this.privateUrls[id].href;
+    if (this._privateUrls[id]) {
+      return this._privateUrls[id].href;
     }
     throw new Error(`URL for '${id}' does not exist.`);
   }

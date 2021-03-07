@@ -13,52 +13,6 @@ export const HEADERS: { [key: string]: string } = {
   "X-Correlation-Id": "WEB-APP.pewW9",
 };
 
-export const GRAPHQL_QUERY_ACCOUNT_BALANCE: string = `
-  {
-    viewer {
-        savingsAccount {
-            currentSavingsBalance {
-                netAmount
-            }
-        }
-    }
-  }
-`;
-
-export const GRAPHQL_QUERY_ACCOUNT_FEED: string = `
-  {
-    viewer {
-        savingsAccount {
-            feed {
-                id
-                __typename
-                title
-                detail
-                postDate
-                ... on TransferInEvent {
-                    amount
-                    originAccount {
-                        name
-                    }
-                }
-                ... on TransferOutEvent {
-                    amount
-                    destinationAccount {
-                        name
-                    }
-                }
-                ... on DebitPurchaseEvent {
-                    amount
-                }
-                ... on BarcodePaymentEvent {
-                    amount
-                }
-            }
-        }
-    }
-  }
-`;
-
 export const PAYMENT_EVENT_TYPES = [
   "TransferOutEvent",
   "TransferInEvent",
