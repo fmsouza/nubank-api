@@ -81,12 +81,14 @@ export class Http {
   ): Promise<any> {
     const url: string = this.isUrl(id) ? id : await this.getUrl(id);
 
+    const headers = { ...HEADERS };
+    if (this._accessToken) {
+      headers['Authorization'] = `Bearer ${this._accessToken}`;
+    }
+
     const options: any = {
       data: body,
-      headers: {
-        ...HEADERS,
-        Authorization: this._accessToken && `Bearer ${this._accessToken}`,
-      },
+      headers,
       method,
       params,
       url,
