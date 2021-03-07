@@ -19,4 +19,7 @@ export const PAYMENT_EVENT_TYPES = [
   "BarcodePaymentEvent",
   "DebitPurchaseEvent",
   "DebitPurchaseReversalEvent",
+  "BillPaymentEvent",
+  "DebitWithdrawalFeeEvent",
+  "DebitWithdrawalEvent"
 ];
