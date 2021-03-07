@@ -1,13 +1,47 @@
-export type Routes = Record<string, Route>;
+export interface Customer {
 
-export interface AuthState {
-  accessToken: string;
-  privateUrls: Routes;
-  publicUrls: Record<string, string>;
 }
 
-interface Route {
-  href: string;
+interface InvestmentBalance {
+  id: string;
+  netAmount: number;
+  yield: any;
+  incomeTax: number;
+  iofTax: number;
+}
+
+export interface Investment {
+  id: string;
+  rate: number;
+  vehicle: any;
+  openDate: string;
+  maturityDate: string;
+  principal: any;
+  redeemedBalance: InvestmentBalance;
+}
+
+export interface Boleto {
+  id: string;
+  dueDate: string;
+  barcode: string;
+  readableBarcode: string;
+  amount: number;
+}
+
+export interface MoneyRequest {
+  id: string;
+  amount: number;
+  message: string;
+  url: string;
+}
+
+export interface PixKey {
+  id: string;
+  kind: string;
+  value: any;
+  formattedValue: string;
+  itemDeepLink: string;
+  badge: string;
 }
 
 export interface Transaction {

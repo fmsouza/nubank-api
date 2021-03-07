@@ -1,45 +1,62 @@
 import axios from 'axios';
 
 import {
-  AuthState,
-  Routes,
-} from "./types";
-
-import {
   DISCOVERY_APP_URL,
   DISCOVERY_URL,
   HEADERS,
 } from "./constants";
 
-interface HttpConstructor {
+interface Route {
+  href: string;
+}
+
+export type Routes = Record<string, Route>;
+
+export interface AuthState {
   accessToken?: string;
+  refreshToken?: string;
+  privateUrls: Routes;
+  publicUrls: Record<string, string>;
+}
+
+interface HttpConstructor {
+  certPath?: string;
+  accessToken?: string;
+  refreshToken?: string;
   privateUrls?: Routes;
   publicUrls?: Record<string, string>;
 }
 
 export class Http {
   private _accessToken: string = "";
+  private _refreshToken: string = "";
   private _privateUrls: Routes;
   private _publicUrls: Record<string, string>;
 
   public get authState(): AuthState {
     return {
       accessToken: this._accessToken,
+      refreshToken: this._refreshToken,
       privateUrls: this._privateUrls,
       publicUrls: this._publicUrls,
     };
   }
 
   public set accessToken(accessToken: string) {
-    this._accessToken = accessToken ?? "";
+    this._accessToken = accessToken;
+  }
+
+  public set refreshToken(refreshToken: string) {
+    this._refreshToken = refreshToken;
   }
 
   public set privateUrls(privateUrls: Routes) {
-    this._privateUrls = privateUrls ?? {};
+    this._privateUrls = privateUrls;
   }
 
   public constructor(params: HttpConstructor = {}) {
     this.accessToken = params?.accessToken ?? "";
+    this.refreshToken = params?.refreshToken ?? "";
     this._privateUrls = params?.privateUrls ?? {};
     this._publicUrls = params?.publicUrls ?? {};
   }
@@ -78,8 +95,8 @@ export class Http {
     return data;
   }
 
-  public async graphql(query: string): Promise<any> {
-    const { data } = await this.request("post", "ghostflame", { query });
+  public async graphql(query: string, variables?: any): Promise<any> {
+    const { data } = await this.request("post", "ghostflame", { query, variables });
     return data;
   }
 
@@ -92,6 +109,12 @@ export class Http {
       return this._privateUrls[id].href;
     }
     throw new Error(`URL for '${id}' does not exist.`);
+  }
+
+  public clearSession(): void {
+    this._accessToken = "";
+    this._refreshToken = "";
+    this._privateUrls = {};
   }
 
   private isUrl(url: string): boolean {
