@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
 import { createInterface } from 'readline';
+import { writeFile } from 'fs/promises';
 
 import { NubankApi } from '../src';
 
@@ -19,6 +20,7 @@ rl.question(`Generate a QRcode and read with the app: ${AUTH_CODE}`, async () =>
     await api.auth.authenticateWithQrCode(CPF, PASSWORD, AUTH_CODE);
     console.log('You are authenticated!');
     console.log(api.authState);
+    await writeFile('./auth-state.json', JSON.stringify(api.authState));
   } catch (e) {
     console.error(e.stack);
   }
