@@ -1,6 +1,8 @@
 import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
 
+import { Http } from "./http";
+
 import {
   AccountTransaction,
   AuthState,
@@ -32,23 +34,11 @@ interface NubankApiConstructor {
 }
 
 export default class NubankApi {
-  private accessToken: string;
-  private privateUrls: Routes;
-  private publicUrls: CustomParams<string>;
-  private options: ApiOptions;;
-
-  private get authState(): AuthState {
-    return {
-      accessToken: this.accessToken,
-      privateUrls: this.privateUrls,
-      publicUrls: this.publicUrls,
-    };
-  }
+  private http: Http;
+  private options: ApiOptions;
 
   public constructor(params: NubankApiConstructor = {}) {
-    this.accessToken = params?.accessToken ?? "";
-    this.privateUrls = params?.privateUrls ?? {};
-    this.publicUrls = params?.publicUrls ?? {};
+    this.http = new Http(params);
     this.options = params?.options ?? {
       uuidAdapter: uuidv4
     };
@@ -84,7 +74,7 @@ export default class NubankApi {
       type: "login-webapp",
     };
 
-    const { access_token, _links } = await this.__request(
+    const { access_token, _links } = await this.http.request(
       "post",
       "lift",
       payload
@@ -98,7 +88,7 @@ export default class NubankApi {
   }
 
   public getCardFeed(): Promise<Transaction[]> {
-    return this.__request("get", "events").then((data) => data.events);
+    return this.http.request("get", "events").then((data) => data.events);
   }
 
   public getCardTransactions(): Promise<Transaction[]> {
@@ -108,20 +98,20 @@ export default class NubankApi {
   }
 
   public getBills(): Promise<Bill[]> {
-    return this.__request("get", "bills_summary").then((data) =>
+    return this.http.request("get", "bills_summary").then((data) =>
       Promise.all(data.bills.map((bill: Bill) => this.getBillDetails(bill)))
     );
   }
 
   public async getAccountBalance(): Promise<number> {
     const query = GRAPHQL_QUERY_ACCOUNT_BALANCE;
-    const { data } = await this.__request("post", "ghostflame", { query });
+    const { data } = await this.http.request("post", "ghostflame", { query });
     return data.viewer?.savingsAccount?.currentSavingsBalance?.netAmount;
   }
 
   public async getAccountFeed(): Promise<AccountTransaction[]> {
     const query = GRAPHQL_QUERY_ACCOUNT_FEED;
-    const { data } = await this.__request("post", "ghostflame", { query });
+    const { data } = await this.http.request("post", "ghostflame", { query });
     return data?.viewer?.savingsAccount?.feed;
   }
 
@@ -133,61 +123,12 @@ export default class NubankApi {
     );
   }
 
-  private async ready(): Promise<void> {
-    const numberOfUrls: number = Object.keys(this.publicUrls).length;
-    if (numberOfUrls > 0) {
-      return;
-    }
-    const [baseUrls, appUrls] = await Promise.all([
-      axios.get(DISCOVERY_URL).then((r) => r.data),
-      axios.get(DISCOVERY_APP_URL).then((r) => r.data),
-    ]);
-    this.publicUrls = { ...baseUrls, ...appUrls };
-  }
-
-  private async getUrl(id: string): Promise<string> {
-    await this.ready();
-    if (this.publicUrls[id]) {
-      return this.publicUrls[id];
-    }
-    if (this.privateUrls[id]) {
-      return this.privateUrls[id].href;
-    }
-    throw new Error(`URL for '${id}' does not exist.`);
-  }
-
-  private isUrl(url: string): boolean {
-    return url.startsWith("http");
-  }
-
-  private async __request(
-    method: string,
-    id: string,
-    body?: any,
-    params?: any
-  ): Promise<any> {
-    const url: string = this.isUrl(id) ? id : await this.getUrl(id);
-
-    const options: any = {
-      data: body,
-      headers: {
-        ...HEADERS,
-        Authorization: `Bearer ${this.accessToken}`,
-      },
-      method,
-      params,
-      url,
-    };
-    const { data } = await axios(options);
-    return data;
-  }
-
   private async getBillDetails(bill: Bill): Promise<Bill> {
     const url: string = bill?._links?.self?.href ?? "";
     if (!url) {
       return bill;
     }
-    const response: any = await this.__request("get", url);
+    const response: any = await this.http.request("get", url);
     return response.bill;
   }
 }
