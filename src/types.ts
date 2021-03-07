@@ -1,13 +1,9 @@
-export interface CustomParams<T> {
-  [key: string]: T;
-}
-
-export type Routes = CustomParams<Route>;
+export type Routes = Record<string, Route>;
 
 export interface AuthState {
   accessToken: string;
   privateUrls: Routes;
-  publicUrls: CustomParams<string>;
+  publicUrls: Record<string, string>;
 }
 
 interface Route {
