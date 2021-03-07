@@ -8,8 +8,7 @@ export const DISCOVERY_APP_URL: string =
 
 export const HEADERS: { [key: string]: string } = {
   "Content-Type": "application/json",
-  "User-Agent":
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36",
+  "User-Agent": "nubank-api - https://github.com/fmsouza/nubank-api",
   "X-Correlation-Id": "WEB-APP.pewW9",
 };
 
