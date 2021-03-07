@@ -14,7 +14,7 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "version": "git add -A src && git add -A lib",
-    "start": "ts-node example.ts"
+    "example": "ts-node examples/$NAME.ts"
   },
   "repository": {
     "type": "git",
