@@ -19,8 +19,8 @@ export class Auth {
       login: cpf,
       password,
     });
-    this._context.http.accessToken = data.access_token;
-    this._context.http.privateUrls = data._links;
+    this._context.http.accessToken = data?.access_token;
+    this._context.http.privateUrls = data?._links;
   }
 
   public async authenticateWithQrCode(cpf: string, password: string, qrCodeId: string): Promise<void> {
