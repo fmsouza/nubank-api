@@ -5,6 +5,7 @@ import * as GqlOperations from './utils/graphql-operations';
 
 export class Account {
   private _accountId: string = '';
+  private _customerId: string = '';
 
   public constructor(private _context: Context) { }
 
@@ -12,14 +13,22 @@ export class Account {
     return this._context.http.request("get", "customer").then((data) => data.customer);
   }
 
-  public async getAccountId(): Promise<string> {
-    if (this._accountId) {
-      return this._accountId;
+  private async ready(): Promise<void> {
+    if (!this._accountId || !this._customerId) {
+      const { data } = await this._context.http.graphql(GqlOperations.QUERY_ACCOUNT_ID);
+      this._accountId = data?.viewer?.savingsAccount?.id;
+      this._customerId = data?.viewer?.id;
     }
-    const { data: accountIdData } = await this._context.http.graphql(GqlOperations.QUERY_ACCOUNT_ID);
-    const savingsAccountId: string = accountIdData?.viewer?.savingsAccount?.id;
-    this._accountId = savingsAccountId;
+  }
+
+  public async getId(): Promise<string> {
+    await this.ready();
     return this._accountId;
+  }
+
+  public async getCustomerId(): Promise<string> {
+    await this.ready();
+    return this._customerId;
   }
 
   public async getPixKeys(): Promise<PixKey[]> {

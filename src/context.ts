@@ -24,14 +24,22 @@ interface NubankApiConstructor {
 }
 
 export class Context {
+  private _options: ApiOptions;
   private _http: Http;
-  private options: ApiOptions;
+  private _auth: Auth;
+  private _account: Account;
+  private _card: Card;
+  private _payment: Payment;
 
   public constructor(params: NubankApiConstructor = {}) {
-    this._http = new Http(params);
-    this.options = params?.options ?? {
+    this._options = params?.options ?? {
       uuidAdapter: uuidv4
     };
+    this._http = new Http(params);
+    this._auth = new Auth(this);
+    this._account = new Account(this);
+    this._card = new Card(this);
+    this._payment = new Payment(this);
   }
 
   public get authState(): AuthState {
@@ -40,7 +48,7 @@ export class Context {
 
   public get adapters(): Adapters {
     return {
-      uuid: this.options.uuidAdapter
+      uuid: this._options.uuidAdapter
     };
   }
 
@@ -49,18 +57,18 @@ export class Context {
   }
 
   public get auth(): Auth {
-    return new Auth(this);
+    return this._auth;
   }
 
   public get account(): Account {
-    return new Account(this);
+    return this._account;
   }
 
   public get card(): Card {
-    return new Card(this);
+    return this._card;
   }
 
   public get payment(): Payment {
-    return new Payment(this);
+    return this._payment;
   }
 }

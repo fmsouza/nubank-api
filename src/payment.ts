@@ -4,12 +4,10 @@ import * as GqlOperations from './utils/graphql-operations';
 
 export class Payment {
 
-
   public constructor(private _context: Context) { }
 
   public async createBoleto(amount: number): Promise<Boleto> {
-    const { data: accountIdData } = await this._context.http.graphql(GqlOperations.QUERY_ACCOUNT_ID);
-    const customerId: string = accountIdData?.viewer?.id;
+    const customerId: string = await this._context.account.getCustomerId();
 
     const input = {
       amount: String(amount),
@@ -21,8 +19,7 @@ export class Payment {
   }
 
   public async createMoneyRequest(amount: number): Promise<MoneyRequest> {
-    const { data: accountIdData } = await this._context.http.graphql(GqlOperations.QUERY_ACCOUNT_ID);
-    const savingsAccountId: string = accountIdData?.viewer?.savingsAccount?.id;
+    const savingsAccountId: string = await this._context.account.getId();
 
     const input = {
       amount: String(amount),
@@ -34,8 +31,7 @@ export class Payment {
   }
 
   public async createPixPaymentRequest(amount: number): Promise<MoneyRequest> {
-    const { data: accountIdData } = await this._context.http.graphql(GqlOperations.QUERY_ACCOUNT_ID);
-    const savingsAccountId: string = accountIdData?.viewer?.savingsAccount?.id;
+    const savingsAccountId: string = await this._context.account.getId();
 
     const input = {
       amount: String(amount),
@@ -44,10 +40,5 @@ export class Payment {
 
     const { data: moneyRequestData } = await this._context.http.graphql(GqlOperations.MUTATION_CREATE_MONEY_REQUEST, { input });
     return moneyRequestData?.createMoneyRequest;
-  }
-
-  private async getAccountId(): Promise<string> {
-    const { data: accountIdData } = await this._context.http.graphql(GqlOperations.QUERY_ACCOUNT_ID);
-    const savingsAccountId: string = accountIdData?.viewer?.savingsAccount?.id;
   }
 }
