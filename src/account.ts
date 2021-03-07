@@ -1,9 +1,10 @@
 import { PAYMENT_EVENT_TYPES } from "./constants";
 import { AccountTransaction, Bill, Customer, Investment, PixKey } from "./models";
-import { Context } from "./types";
+import { Context } from './context';
 import * as GqlOperations from './utils/graphql-operations';
 
 export class Account {
+  private _accountId: string = '';
 
   public constructor(private _context: Context) { }
 
@@ -11,9 +12,19 @@ export class Account {
     return this._context.http.request("get", "customer").then((data) => data.customer);
   }
 
+  public async getAccountId(): Promise<string> {
+    if (this._accountId) {
+      return this._accountId;
+    }
+    const { data: accountIdData } = await this._context.http.graphql(GqlOperations.QUERY_ACCOUNT_ID);
+    const savingsAccountId: string = accountIdData?.viewer?.savingsAccount?.id;
+    this._accountId = savingsAccountId;
+    return this._accountId;
+  }
+
   public async getPixKeys(): Promise<PixKey[]> {
     const { data } = await this._context.http.graphql(GqlOperations.QUERY_GET_PIX_KEYS);
-    return data?.viewer?.savingsAccount;
+    return data?.viewer?.savingsAccount?.dict;
   }
 
   public getBills(): Promise<Bill[]> {

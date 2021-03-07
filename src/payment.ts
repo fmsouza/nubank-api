@@ -1,8 +1,9 @@
 import { Boleto, MoneyRequest } from './models';
-import { Context } from './types';
+import { Context } from './context';
 import * as GqlOperations from './utils/graphql-operations';
 
 export class Payment {
+
 
   public constructor(private _context: Context) { }
 
@@ -32,7 +33,7 @@ export class Payment {
     return moneyRequestData?.createMoneyRequest;
   }
 
-  public async createPixRequest(amount: number): Promise<MoneyRequest> {
+  public async createPixPaymentRequest(amount: number): Promise<MoneyRequest> {
     const { data: accountIdData } = await this._context.http.graphql(GqlOperations.QUERY_ACCOUNT_ID);
     const savingsAccountId: string = accountIdData?.viewer?.savingsAccount?.id;
 
@@ -43,5 +44,10 @@ export class Payment {
 
     const { data: moneyRequestData } = await this._context.http.graphql(GqlOperations.MUTATION_CREATE_MONEY_REQUEST, { input });
     return moneyRequestData?.createMoneyRequest;
+  }
+
+  private async getAccountId(): Promise<string> {
+    const { data: accountIdData } = await this._context.http.graphql(GqlOperations.QUERY_ACCOUNT_ID);
+    const savingsAccountId: string = accountIdData?.viewer?.savingsAccount?.id;
   }
 }

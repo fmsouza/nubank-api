@@ -1,5 +1,5 @@
 import { CLIENT_SECRET } from "./constants";
-import { Context } from "./types";
+import { Context } from './context';
 
 export class Auth {
   public constructor(private _context: Context) { }

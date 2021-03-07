@@ -1,5 +1,5 @@
 import { CardTransaction } from "./models";
-import { Context } from "./types";
+import { Context } from './context';
 
 export class Card {
 
