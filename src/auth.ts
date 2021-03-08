@@ -20,10 +20,7 @@ export class Auth {
       password,
     });
 
-    this._context.http.accessToken = data?.access_token;
-    this._context.http.refreshToken = data?.refresh_token;
-    this._context.http.refreshBefore = data?.refresh_before;
-    this._context.http.privateUrls = data?._links;
+    this.updateAuthState(data);
   }
 
   public async authenticateWithQrCode(cpf: string, password: string, qrCodeId: string): Promise<void> {
@@ -34,17 +31,13 @@ export class Auth {
       type: "login-webapp",
     });
 
-    this._context.http.accessToken = data?.access_token;
-    this._context.http.privateUrls = {
-      ...this._context.http.authState.privateUrls,
-      ...data?._links,
-    };
+    this.updateAuthState(data);
   }
 
   public async authenticateWithCertificate(cpf: string, password: string): Promise<void> {
     await this.authenticate(cpf, password);
 
-    const { data } = await this._context.http.request("post", "token", {
+    const data = await this._context.http.request("post", "token", {
       client_id: 'legacy_client_id',
       client_secret: 'legacy_client_secret',
       grant_type: 'password',
@@ -52,19 +45,28 @@ export class Auth {
       password,
     });
 
-    this._context.http.refreshToken = data?.refresh_token;
+    this.updateAuthState(data);
   }
 
   public async authenticateWithRefreshToken(refreshToken: string): Promise<void> {
-    const { data } = await this._context.http.request("post", "token", {
+    const data = await this._context.http.request("post", "token", {
       client_id: 'legacy_client_id',
       client_secret: 'legacy_client_secret',
       grant_type: 'refresh_token',
       refresh_token: refreshToken
     });
 
-    this._context.http.accessToken = data?.access_token;
-    this._context.http.refreshToken = data?.refresh_token;
+    this.updateAuthState(data);
+  }
+
+  private updateAuthState(data: Record<string, any>): void {
+    this._context.http.accessToken = data?.access_token ?? this._context.http.accessToken;
+    this._context.http.refreshToken = data?.refresh_token ?? this._context.http.refreshToken;
+    this._context.http.refreshBefore = data?.refresh_before ?? this._context.http.refreshBefore;
+    this._context.http.privateUrls = {
+      ...this._context.http.authState.privateUrls,
+      ...data?._links,
+    };
   }
 
   public revokeAccess(): void {
