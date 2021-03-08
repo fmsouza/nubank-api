@@ -1,4 +1,6 @@
-import axios from 'axios';
+import axios, { AxiosRequestConfig, Method } from 'axios';
+import { Agent } from 'https';
+import { readFile } from 'fs/promises';
 
 import {
   DISCOVERY_APP_URL,
@@ -30,6 +32,7 @@ interface HttpConstructor {
 }
 
 export class Http {
+  private _certPath?: string;
   private _accessToken: string = "";
   private _refreshToken: string = "";
   private _refreshBefore?: Date;
@@ -63,6 +66,7 @@ export class Http {
   }
 
   public constructor(params: HttpConstructor = {}) {
+    this._certPath = params?.certPath;
     this.accessToken = params?.accessToken ?? "";
     this.refreshToken = params?.refreshToken ?? "";
     this.refreshBefore = params?.refreshBefore ?? "";
@@ -83,7 +87,7 @@ export class Http {
   }
 
   public async request(
-    method: string,
+    method: Method,
     id: string,
     body?: any,
     params?: any
@@ -92,16 +96,21 @@ export class Http {
 
     const headers = { ...HEADERS };
     if (this._accessToken) {
-      headers['Authorization'] = `Bearer ${this._accessToken}`;
+      headers["Authorization"] = `Bearer ${this._accessToken}`;
     }
 
-    const options: any = {
+    const options: AxiosRequestConfig = {
       data: body,
       headers,
       method,
       params,
       url,
+      httpsAgent: this._certPath && new Agent({
+        passphrase: '',
+        pfx: await readFile(this._certPath)
+      })
     };
+
     const { data } = await axios(options);
     return data;
   }
@@ -124,6 +133,7 @@ export class Http {
   public clearSession(): void {
     this._accessToken = "";
     this._refreshToken = "";
+    this._refreshBefore = undefined;
     this._privateUrls = {};
   }
 
