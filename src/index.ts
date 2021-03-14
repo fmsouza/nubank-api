@@ -104,10 +104,36 @@ export default class NubankApi {
     );
   }
 
-  public getBills(): Promise<Bill[]> {
-    return this.__request("get", "bills_summary").then((data) =>
-      Promise.all(data.bills.map((bill: Bill) => this.getBillDetails(bill)))
-    );
+  public getBills(options: {
+    getFutureBillsDetails?: boolean;
+    billsAfterDueDate?: Date;
+  }): Promise<Bill[]> {
+
+    options = { getFutureBillsDetails: false, ...options };
+
+    return this.__request("get", "bills_summary").then((data) => {
+
+      const futureBillsUrl = data._links?.future?.href;
+
+      if (options.getFutureBillsDetails && futureBillsUrl) {
+
+        return this.__request("get", futureBillsUrl)
+          .then(dataFuture => {
+
+            const oldAndCurrentBills = data.bills.filter(bill => bill.state != 'future');
+            let allBills = dataFuture.bills.concat(oldAndCurrentBills);
+
+            if (options.billsAfterDueDate) {
+              
+              allBills = allBills.filter(bill => this.parseDate(bill.summary.due_date) >= (options.billsAfterDueDate as Date));
+            }
+
+            return Promise.all(allBills.map((bill: Bill) => this.getBillDetails(bill)));
+          });
+      }
+      else
+        return Promise.all(data.bills.map((bill: Bill) => this.getBillDetails(bill)));
+    });
   }
 
   public async getAccountBalance(): Promise<number> {
@@ -205,5 +231,11 @@ export default class NubankApi {
     }
     const response: any = await this.__request("get", url);
     return response.bill;
+  }
+
+  private parseDate(dateStr: string) {
+
+    const dateParts = dateStr.split('-');
+    return new Date(parseInt(dateParts[0]), parseInt(dateParts[1]), parseInt(dateParts[2]));
   }
 }
