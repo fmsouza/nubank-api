@@ -1,22 +1,60 @@
-export interface CustomParams<T> {
-  [key: string]: T;
+export interface Customer {
+
 }
 
-export type Routes = CustomParams<Route>;
-
-export type UUIDProcessingCallback = (uuid: string) => Promise<void>;
-
-export interface AuthState {
-  accessToken: string;
-  privateUrls: Routes;
-  publicUrls: CustomParams<string>;
+interface InvestmentBalance {
+  id: string;
+  netAmount: number;
+  yield: any;
+  incomeTax: number;
+  iofTax: number;
 }
 
-interface Route {
-  href: string;
+export interface Investment {
+  id: string;
+  rate: number;
+  vehicle: any;
+  openDate: string;
+  maturityDate: string;
+  principal: any;
+  redeemedBalance: InvestmentBalance;
 }
 
-export interface Transaction {
+export interface Boleto {
+  id: string;
+  dueDate: string;
+  barcode: string;
+  readableBarcode: string;
+  amount: number;
+}
+
+export interface MoneyRequest {
+  id: string;
+  amount: number;
+  message: string;
+  url: string;
+}
+
+export interface PixKey {
+  id: string;
+  kind: string;
+  value: any;
+  formattedValue: string;
+  itemDeepLink: string;
+  badge: string;
+}
+
+export interface PixPaymentRequest {
+  id: string;
+  amount: number;
+  message: string;
+  url: string;
+  transactionId: string;
+  pixAlias: string;
+  brcode: string
+}
+
+export interface CardTransaction {
   category: string;
   time: string;
   title: string;
