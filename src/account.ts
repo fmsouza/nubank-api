@@ -36,10 +36,31 @@ export class Account {
     return data?.viewer?.savingsAccount?.dict;
   }
 
-  public getBills(): Promise<Bill[]> {
-    return this._context.http.request("get", "bills_summary").then((data) =>
-      Promise.all(data.bills.map((bill: Bill) => this.getBillDetails(bill)))
-    );
+  public async getBills(options: {
+    getFutureBillsDetails?: boolean;
+    billsAfterDueDate?: Date;
+  }): Promise<Bill[]> {
+
+    options = { getFutureBillsDetails: false, ...options };
+
+    const data = await this._context.http.request("get", "bills_summary");
+
+    const futureBillsUrl = data._links?.future?.href;
+    let bills = data.bills;
+
+    if (options.getFutureBillsDetails && futureBillsUrl) {
+
+      const dataFuture = await this._context.http.request("get", futureBillsUrl);        
+      const closedAndOpenedBills = data.bills.filter(bill => bill.state != 'future');
+      bills = dataFuture.bills.concat(closedAndOpenedBills);                                 
+    }
+
+    if (options.billsAfterDueDate) {
+            
+      bills = bills.filter(bill => this.parseDate(bill.summary.due_date) >= (options.billsAfterDueDate as Date));
+    }
+
+    return await Promise.all(bills.map((bill: Bill) => this.getBillDetails(bill)));
   }
 
   public async getBalance(): Promise<number> {
@@ -72,5 +93,11 @@ export class Account {
     }
     const response: any = await this._context.http.request("get", url);
     return response.bill;
+  }
+
+  private parseDate(dateStr: string) {
+
+    const dateParts = dateStr.split('-');
+    return new Date(parseInt(dateParts[0]), parseInt(dateParts[1]), parseInt(dateParts[2]));
   }
 }
