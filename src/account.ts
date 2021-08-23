@@ -51,13 +51,13 @@ export class Account {
     if (options.getFutureBillsDetails && futureBillsUrl) {
 
       const dataFuture = await this._context.http.request("get", futureBillsUrl);        
-      const closedAndOpenedBills = data.bills.filter(bill => bill.state != 'future');
+      const closedAndOpenedBills = data.bills.filter((bill: Bill) => bill.state != 'future');
       bills = dataFuture.bills.concat(closedAndOpenedBills);                                 
     }
 
     if (options.billsAfterDueDate) {
             
-      bills = bills.filter(bill => this.parseDate(bill.summary.due_date) >= (options.billsAfterDueDate as Date));
+      bills = bills.filter((bill: Bill) => this.parseDate(bill.summary.due_date) >= (options.billsAfterDueDate as Date));
     }
 
     return await Promise.all(bills.map((bill: Bill) => this.getBillDetails(bill)));
