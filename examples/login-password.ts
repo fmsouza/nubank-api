@@ -21,6 +21,7 @@ rl.question(`Generate a QRcode and read with the app: ${AUTH_CODE}`, async () =>
     console.log('You are authenticated!');
     console.log(api.authState);
     await writeFile('./auth-state.json', JSON.stringify(api.authState));
+    process.exit(0);
   } catch (e) {
     console.error(e.stack);
   }
