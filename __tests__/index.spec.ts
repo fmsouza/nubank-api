@@ -1,4 +1,4 @@
-import NubankApi from '../src';
+import { NubankApi } from '../src';
 
 describe('NubankApi', () => {
 
