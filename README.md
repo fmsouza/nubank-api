@@ -96,23 +96,23 @@ All the operations available are methods nested within the object properties.
     <td><b>Description</b></td>
   </tr>
   <tr>
-    <td>[auth](./src/auth.ts)</td>
+    <td>auth</td>
     <td>Authentication operations</td>
   </tr>
   <tr>
-    <td>[account](./src/account.ts)</td>
+    <td>account</td>
     <td>Contains methods to access the user account details and the checking account transactions and bills</td>
   </tr>
   <tr>
-    <td>[card](./src/card.ts</td>
+    <td>card</td>
     <td>Contains methods to retrieve the feed of transactions from the credit card</td>
   </tr>
   <tr>
-    <td>[payment](./src/payment.ts)</td>
+    <td>payment</td>
     <td>Contains methods to create payment requests</td>
   </tr>
   <tr>
-    <td>[http](./src/utils/http.ts)</td>
+    <td>http</td>
     <td>Wrapper for the API access used by the other modules. Don't use it unless you need to make custom requests not supported by this lib.</td>
   </tr>
 </table>
