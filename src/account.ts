@@ -45,7 +45,7 @@ export class Account {
     const { data } = await this._context.http.graphql(
       GqlOperations.QUERY_GET_PIX_KEYS
     );
-    return data?.viewer?.savingsAccount?.dict;
+    return data?.viewer?.savingsAccount?.dict?.keys;
   }
 
   public async getBills(options: {
