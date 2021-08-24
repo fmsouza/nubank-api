@@ -14,85 +14,109 @@ This project was created because the API changed over time, and the JavaScript p
 
 ## Usage
 
-```javascript
-const NubankApi = require("nubank-api"); // CommonJS syntax
-import NubankApi from "nubank-api"; // ES Modules syntax
+```typescript
+const { NubankApi } = require("nubank-api"); // CommonJS syntax
+import { NubankApi } from "nubank-api"; // ES Modules syntax
 
-const CPF = "<your-cpf-number>";
-const PASSWORD = "your-password";
+import { v4 as uuidv4 } from "uuid"; // Browser/Node.js
+import { v4 as uuidv4 } from "react-native-uuid"; // ReactNative
 
-(async function main() {
-  const api = new NubankApi();
+import { createInterface } from "readline";
+import { writeFile } from "fs/promises";
 
-  const authCode = await api.login(CPF, PASSWORD);
-  await renderQrCode(authCode);
-  await waitForUserInput("Press any key to continue after reading the QR code");
-  const { accessToken, privateUrls, publicUrls } = await api.validateLogin(authCode);
+const CPF: string = "your-cpf";
+const PASSWORD: string = "your-password";
+const AUTH_CODE: string = uuidv4();
 
-  saveToCache({ accessToken, privateUrls, publicUrls }); // Better cache that, because making too many login requests results in a 429 error
-  
-  // ------------------ OR ------------------------
+const api = new NubankApi();
 
-  // or add the accessToken and the privateUrls in case you already have them
-  const { accessToken, privateUrls, publicUrls } = readCache();
-  const api = new NubankApi({ accessToken, privateUrls, publicUrls });
+const rl = createInterface({
+  input: process.stdin,
+  output: process.stdout,
+});
 
-  // Now you are ready to access your account :)
-})();
-```
-
-Or if you are using React Native, you need to configure the UUID generator function as well
-
-```javascript
-  import uuid from 'react-native-uuid';
-
-  // ...
-
-  const api = new NubankApi();
-
-  // or add the accessToken and the privateUrls in case you already have them
-  const { accessToken, privateUrls } = readCache();
-  const options = {
-    uuidAdapter: uuid.v4
-  };
-  const api = new NubankApi({ accessToken, privateUrls, options });
-})();
+rl.question(
+  `Generate a QRcode and read with the app: ${AUTH_CODE}`,
+  async () => {
+    try {
+      await api.auth.authenticateWithQrCode(CPF, PASSWORD, AUTH_CODE);
+      console.log("You are authenticated!");
+      console.log(api.authState);
+      await writeFile("./auth-state.json", JSON.stringify(api.authState)); // Saves the auth data to use later
+      process.exit(0);
+    } catch (e) {
+      console.error(e.stack);
+    }
+  }
+);
 ```
 
 ## API
 
-### new NubankApi(accessToken: string, routes: Routes)
+### new NubankApi(params?: NubankApiConstructor)
 
-The constructor takes an access token and an object containing some routes, which are received after the login operation. This avoids extra requests for login to be executed because it can cause your account to be blocked from logging in for up to 72h in this IP.
+The constructor takes an object containing the authentication details, which are received after the login operation. This avoids extra requests for login to be executed because it can cause your account to be blocked from logging in for up to 72h in this IP.
 
-### login(cpf: string, password: string): Promise<string>
+<table>
+  <tr>
+    <th colspan="3" align="left">NubankApiConstructor</th>
+  </tr>
+  <tr>
+    <td><b>Key</b></td>
+    <td><b>Type</b></td>
+    <td><b>Description</b></td>
+  </tr>
+  <tr>
+    <td>certPath</td>
+    <td>string</td>
+    <td>(Optional) path to the SSL certificate. Mandatory in case of authentication via p12 certificate.</td>
+  </tr>
+  <tr>
+    <td>privateUrls</td>
+    <td>Routes</td>
+    <td>(Optional) private routes received after authentication.</td>
+  </tr>
+  <tr>
+    <td>publicUrls</td>
+    <td>Record<string, string></td>
+    <td>(Optional) public routes received after authentication.</td>
+  </tr>
+</table>
 
-Executes the login procedure and generates an authentication code, which needs to be used to generate a QR code and be read by the user's phone, so the access token attached to the requests can be activated.
+### Class properties
 
-### validateLogin(authCode: string): Promise<AuthState>
+All the operations available are methods nested within the object properties.
 
-You'll only need to call this method if you omit `validateCallback` on the `login` method. This method takes the authentication code used in the QR code scan to complete the login procedure asynchronously.
+<table>
+  <tr>
+    <th colspan="3" align="left">NubankApiConstructor</th>
+  </tr>
+  <tr>
+    <td><b>Property</b></td>
+    <td><b>Description</b></td>
+  </tr>
+  <tr>
+    <td>[auth](./src/auth.ts)</td>
+    <td>Authentication operations</td>
+  </tr>
+  <tr>
+    <td>[account](./src/account.ts)</td>
+    <td>Contains methods to access the user account details and the checking account transactions and bills</td>
+  </tr>
+  <tr>
+    <td>[card](./src/card.ts</td>
+    <td>Contains methods to retrieve the feed of transactions from the credit card</td>
+  </tr>
+  <tr>
+    <td>[payment](./src/payment.ts)</td>
+    <td>Contains methods to create payment requests</td>
+  </tr>
+  <tr>
+    <td>[http](./src/utils/http.ts)</td>
+    <td>Wrapper for the API access used by the other modules. Don't use it unless you need to make custom requests not supported by this lib.</td>
+  </tr>
+</table>
 
-### getCardFeed(): Promise<Transaction[]>
+## LICENSE
 
-Retrieves the list of credit card operations.
-
-### getCardTransactions(): Promise<Transaction[]>
-
-Retrieves the entire history of credit card transactions since the first use of the cards.
-
-### getBills(): Promise<Bill[]>
-
-Retrieves a list with all the bills created with the user's transactions since the first use, until the future charges.
-
-### getAccountBalance(): Promise<number>
-
-Retrieves the NuConta balance.
-
-### getAccountFeed(): Promise<AccountTransaction[]>
-
-Retrieves the list of debit card and account operations.
-
-### getAccountTransactions(): Promise<AccountTransaction[]>
-
-Retrieves the entire history of debit card and transfer transactions since the first use of the NuConta.
+[GNU GPL v3](./LICENSE)
