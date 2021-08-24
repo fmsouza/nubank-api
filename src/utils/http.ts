@@ -96,12 +96,12 @@ export class Http {
 
     const headers = { ...HEADERS };
     if (this._accessToken) {
+      // tslint:disable-next-line
       headers["Authorization"] = `Bearer ${this._accessToken}`;
     }
 
     let httpsAgent: Agent | undefined;
     if (this._certPath) {
-      console.log('cert path:', this._certPath);
       const certStream: Buffer = await readFile(this._certPath);
       httpsAgent = new Agent({
         rejectUnauthorized: false,

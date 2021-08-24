@@ -51,7 +51,7 @@ export class Account {
     if (options.getFutureBillsDetails && futureBillsUrl) {
 
       const dataFuture = await this._context.http.request("get", futureBillsUrl);        
-      const closedAndOpenedBills = data.bills.filter((bill: Bill) => bill.state != 'future');
+      const closedAndOpenedBills = data.bills.filter((bill: Bill) => bill.state !== 'future');
       bills = dataFuture.bills.concat(closedAndOpenedBills);                                 
     }
 
@@ -95,9 +95,8 @@ export class Account {
     return response.bill;
   }
 
-  private parseDate(dateStr: string) {
-
+  private parseDate(dateStr: string): Date {
     const dateParts = dateStr.split('-');
-    return new Date(parseInt(dateParts[0]), parseInt(dateParts[1]), parseInt(dateParts[2]));
+    return new Date(parseInt(dateParts[0], 10), parseInt(dateParts[1], 10), parseInt(dateParts[2], 10));
   }
 }
