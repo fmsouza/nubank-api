@@ -99,16 +99,24 @@ export class Http {
       headers["Authorization"] = `Bearer ${this._accessToken}`;
     }
 
+    let httpsAgent: Agent | undefined;
+    if (this._certPath) {
+      console.log('cert path:', this._certPath);
+      const certStream: Buffer = await readFile(this._certPath);
+      httpsAgent = new Agent({
+        rejectUnauthorized: false,
+        passphrase: '',
+        pfx: certStream
+      });
+    }
+
     const options: AxiosRequestConfig = {
       data: body,
       headers,
       method,
       params,
       url,
-      httpsAgent: this._certPath && new Agent({
-        passphrase: '',
-        pfx: await readFile(this._certPath)
-      })
+      httpsAgent
     };
 
     const { data } = await axios(options);
