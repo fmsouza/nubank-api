@@ -1,4 +1,4 @@
-# Nubank API
+# Nubank API [![npm version](https://badge.fury.io/js/nubank-api.svg)](https://badge.fury.io/js/nubank-api)
 
 A high level API to connect to Nubank service and download your purchase records.
 
