@@ -106,7 +106,7 @@ export class Http {
       httpsAgent = new Agent({
         rejectUnauthorized: false,
         passphrase: '',
-        pfx: certStream
+        pfx: certStream // TODO: Fix error when certificate is added
       });
     }
 
