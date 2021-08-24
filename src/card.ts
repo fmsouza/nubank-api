@@ -1,12 +1,13 @@
 import { CardTransaction } from "./models";
-import { Context } from './context';
+import { Context } from "./context";
 
 export class Card {
-
-  public constructor(private _context: Context) { }
+  public constructor(private _context: Context) {}
 
   public getFeed(): Promise<CardTransaction[]> {
-    return this._context.http.request("get", "events").then((data) => data.events);
+    return this._context.http
+      .request("get", "events")
+      .then((data) => data.events);
   }
 
   public getTransactions(): Promise<CardTransaction[]> {

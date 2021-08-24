@@ -112,7 +112,7 @@ export interface PixPaymentRequest {
   url: string;
   transactionId: string;
   pixAlias: string;
-  brcode: string
+  brcode: string;
 }
 
 export interface CardTransaction {

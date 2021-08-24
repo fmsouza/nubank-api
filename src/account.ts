@@ -1,21 +1,31 @@
 import { PAYMENT_EVENT_TYPES } from "./constants";
-import { AccountTransaction, Bill, Customer, Investment, PixKey } from "./models";
-import { Context } from './context';
-import * as GqlOperations from './utils/graphql-operations';
+import {
+  AccountTransaction,
+  Bill,
+  Customer,
+  Investment,
+  PixKey,
+} from "./models";
+import { Context } from "./context";
+import * as GqlOperations from "./utils/graphql-operations";
 
 export class Account {
-  private _accountId: string = '';
-  private _customerId: string = '';
+  private _accountId: string = "";
+  private _customerId: string = "";
 
-  public constructor(private _context: Context) { }
+  public constructor(private _context: Context) {}
 
   public me(): Promise<Customer> {
-    return this._context.http.request("get", "customer").then((data) => data.customer);
+    return this._context.http
+      .request("get", "customer")
+      .then((data) => data.customer);
   }
 
   private async ready(): Promise<void> {
     if (!this._accountId || !this._customerId) {
-      const { data } = await this._context.http.graphql(GqlOperations.QUERY_ACCOUNT_ID);
+      const { data } = await this._context.http.graphql(
+        GqlOperations.QUERY_ACCOUNT_ID
+      );
       this._accountId = data?.viewer?.savingsAccount?.id;
       this._customerId = data?.viewer?.id;
     }
@@ -32,7 +42,9 @@ export class Account {
   }
 
   public async getPixKeys(): Promise<PixKey[]> {
-    const { data } = await this._context.http.graphql(GqlOperations.QUERY_GET_PIX_KEYS);
+    const { data } = await this._context.http.graphql(
+      GqlOperations.QUERY_GET_PIX_KEYS
+    );
     return data?.viewer?.savingsAccount?.dict;
   }
 
@@ -40,7 +52,6 @@ export class Account {
     getFutureBillsDetails?: boolean;
     billsAfterDueDate?: Date;
   }): Promise<Bill[]> {
-
     options = { getFutureBillsDetails: false, ...options };
 
     const data = await this._context.http.request("get", "bills_summary");
@@ -49,27 +60,40 @@ export class Account {
     let bills = data.bills;
 
     if (options.getFutureBillsDetails && futureBillsUrl) {
-
-      const dataFuture = await this._context.http.request("get", futureBillsUrl);        
-      const closedAndOpenedBills = data.bills.filter((bill: Bill) => bill.state !== 'future');
-      bills = dataFuture.bills.concat(closedAndOpenedBills);                                 
+      const dataFuture = await this._context.http.request(
+        "get",
+        futureBillsUrl
+      );
+      const closedAndOpenedBills = data.bills.filter(
+        (bill: Bill) => bill.state !== "future"
+      );
+      bills = dataFuture.bills.concat(closedAndOpenedBills);
     }
 
     if (options.billsAfterDueDate) {
-            
-      bills = bills.filter((bill: Bill) => this.parseDate(bill.summary.due_date) >= (options.billsAfterDueDate as Date));
+      bills = bills.filter(
+        (bill: Bill) =>
+          this.parseDate(bill.summary.due_date) >=
+          (options.billsAfterDueDate as Date)
+      );
     }
 
-    return await Promise.all(bills.map((bill: Bill) => this.getBillDetails(bill)));
+    return await Promise.all(
+      bills.map((bill: Bill) => this.getBillDetails(bill))
+    );
   }
 
   public async getBalance(): Promise<number> {
-    const data = await this._context.http.graphql(GqlOperations.QUERY_ACCOUNT_BALANCE);
+    const data = await this._context.http.graphql(
+      GqlOperations.QUERY_ACCOUNT_BALANCE
+    );
     return data.viewer?.savingsAccount?.currentSavingsBalance?.netAmount;
   }
 
   public async getFeed(): Promise<AccountTransaction[]> {
-    const data = await this._context.http.graphql(GqlOperations.QUERY_ACCOUNT_FEED);
+    const data = await this._context.http.graphql(
+      GqlOperations.QUERY_ACCOUNT_FEED
+    );
     return data?.viewer?.savingsAccount?.feed;
   }
 
@@ -82,7 +106,9 @@ export class Account {
   }
 
   public async getInvestments(): Promise<Investment[]> {
-    const { data } = await this._context.http.graphql(GqlOperations.QUERY_ACCOUNT_INVESTMENTS);
+    const { data } = await this._context.http.graphql(
+      GqlOperations.QUERY_ACCOUNT_INVESTMENTS
+    );
     return data?.viewer?.savingsAccount?.redeemableDeposits;
   }
 
@@ -96,7 +122,11 @@ export class Account {
   }
 
   private parseDate(dateStr: string): Date {
-    const dateParts = dateStr.split('-');
-    return new Date(parseInt(dateParts[0], 10), parseInt(dateParts[1], 10), parseInt(dateParts[2], 10));
+    const dateParts = dateStr.split("-");
+    return new Date(
+      parseInt(dateParts[0], 10),
+      parseInt(dateParts[1], 10),
+      parseInt(dateParts[2], 10)
+    );
   }
 }

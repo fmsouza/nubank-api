@@ -1,12 +1,8 @@
-import axios, { AxiosRequestConfig, Method } from 'axios';
-import { Agent } from 'https';
-import { readFile } from 'fs/promises';
+import axios, { AxiosRequestConfig, Method } from "axios";
+import { Agent } from "https";
+import { readFile } from "fs/promises";
 
-import {
-  DISCOVERY_APP_URL,
-  DISCOVERY_URL,
-  HEADERS,
-} from "../constants";
+import { DISCOVERY_APP_URL, DISCOVERY_URL, HEADERS } from "../constants";
 
 interface Route {
   href: string;
@@ -105,8 +101,8 @@ export class Http {
       const certStream: Buffer = await readFile(this._certPath);
       httpsAgent = new Agent({
         rejectUnauthorized: false,
-        passphrase: '',
-        pfx: certStream // TODO: Fix error when certificate is added
+        passphrase: "",
+        pfx: certStream, // TODO: Fix error when certificate is added
       });
     }
 
@@ -116,7 +112,7 @@ export class Http {
       method,
       params,
       url,
-      httpsAgent
+      httpsAgent,
     };
 
     const { data } = await axios(options);
