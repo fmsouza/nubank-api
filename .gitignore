@@ -1,2 +1,3 @@
 node_modules
 auth-state.json
+*.p12
