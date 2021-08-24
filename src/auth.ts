@@ -4,10 +4,6 @@ import { Context } from './context';
 export class Auth {
   public constructor(private _context: Context) { }
 
-  public generateQrCodeId(): string {
-    return this._context.adapters.uuid();
-  }
-
   private async authenticate(
     cpf: string,
     password: string
