@@ -1,6 +1,6 @@
 import axios, { AxiosRequestConfig, Method } from "axios";
 import { Agent } from "https";
-import { readFile } from "fs/promises";
+import { readFileSync } from "fs";
 
 import { DISCOVERY_APP_URL, DISCOVERY_URL, HEADERS } from "../constants";
 
@@ -98,7 +98,7 @@ export class Http {
 
     let httpsAgent: Agent | undefined;
     if (this._certPath) {
-      const certStream: Buffer = await readFile(this._certPath);
+      const certStream: Buffer = readFileSync(this._certPath);
       httpsAgent = new Agent({
         rejectUnauthorized: false,
         passphrase: "",
