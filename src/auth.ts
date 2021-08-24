@@ -35,8 +35,6 @@ export class Auth {
   }
 
   public async authenticateWithCertificate(cpf: string, password: string): Promise<void> {
-    await this.authenticate(cpf, password);
-
     const data = await this._context.http.request("post", "token", {
       client_id: 'legacy_client_id',
       client_secret: 'legacy_client_secret',
