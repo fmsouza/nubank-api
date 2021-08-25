@@ -1,7 +1,21 @@
 import { CLIENT_SECRET } from "./constants";
 import { Context } from "./context";
+import { generateKeyPair, parseAuthenticationHeader, KeyPair, parseCertificate, Certificate } from "./utils/cert";
+
+type RequestAuthenticationCodeInput = {
+  cpf: string;
+  password: string;
+  deviceId: string;
+};
+
+type ExchangeCertificatesInput = RequestAuthenticationCodeInput & { authCode: string };
 
 export class Auth {
+
+  private _keyPair?: KeyPair;
+  private _keyPairCrypto?: KeyPair;
+  private _encryptedCode: string = '';
+
   public constructor(private _context: Context) {}
 
   private async authenticate(cpf: string, password: string): Promise<void> {
@@ -57,6 +71,51 @@ export class Auth {
     });
 
     this.updateAuthState(data);
+  }
+
+  public async requestAuthenticationCode({ cpf, password, deviceId }: RequestAuthenticationCodeInput): Promise<void> {
+    this._keyPair = generateKeyPair();
+    this._keyPairCrypto = generateKeyPair();
+
+    const { headers } = await this._context.http.rawRequest("post", "gen_certificate", {
+      login: cpf,
+      password,
+      device_id: deviceId,
+      model: [this._context.http.clientName, deviceId].join(' - '),
+      public_key: this._keyPair.publicKey,
+      public_key_crypto: this._keyPairCrypto.publicKey
+    }).catch(({ response }) => {
+      console.log('response:', response);
+      if (response.status !== 401 || !response.headers['WWW-Authenticate']) {
+        throw new Error('Authentication code request failed.');
+      }
+      return response;
+    });
+
+    const parsed = parseAuthenticationHeader(headers['WWW-Authenticate']);
+    this._encryptedCode = parsed.get('device-authorization_encrypted-code') ?? '';
+  }
+
+  public async exchangeCertificates({ cpf, password, deviceId, authCode }: ExchangeCertificatesInput): Promise<Certificate[]> {
+    if (!this._encryptedCode) {
+      throw new Error('No encrypted code found. Did you call `requestAuthenticationCode` before exchanging certs?');
+    }
+
+    const data = await this._context.http.request("post", "gen_certificate", {
+      login: cpf,
+      password,
+      device_id: deviceId,
+      model: [this._context.http.clientName, deviceId].join(' - '),
+      public_key: this._keyPair?.publicKey,
+      public_key_crypto: this._keyPairCrypto?.publicKey,
+      code: authCode,
+      "encrypted-code": this._encryptedCode
+    });
+
+    const cert = parseCertificate(data.certificate);
+    const certCrypto = parseCertificate(data?.certificate_crypto);
+
+    return [cert, certCrypto];
   }
 
   private updateAuthState(data: Record<string, any>): void {
