@@ -19,6 +19,7 @@ export interface AuthState {
 }
 
 interface HttpConstructor {
+  clientName?: string;
   certPath?: string;
   accessToken?: string;
   refreshToken?: string;
@@ -28,6 +29,7 @@ interface HttpConstructor {
 }
 
 export class Http {
+  private _clientName: string;
   private _certPath?: string;
   private _accessToken: string = "";
   private _refreshToken: string = "";
@@ -43,6 +45,10 @@ export class Http {
       privateUrls: this._privateUrls,
       publicUrls: this._publicUrls,
     };
+  }
+
+  public get clientName(): string {
+    return this._clientName;
   }
 
   public set accessToken(accessToken: string) {
@@ -62,6 +68,7 @@ export class Http {
   }
 
   public constructor(params: HttpConstructor = {}) {
+    this._clientName = params?.clientName ?? "Nubank API";
     this._certPath = params?.certPath;
     this.accessToken = params?.accessToken ?? "";
     this.refreshToken = params?.refreshToken ?? "";
@@ -83,6 +90,16 @@ export class Http {
   }
 
   public async request(
+    method: Method,
+    id: string,
+    body?: any,
+    params?: any
+  ): Promise<any> {
+    const { data } = await this.rawRequest(method, id, body, params);
+    return data;
+  }
+
+  public async rawRequest(
     method: Method,
     id: string,
     body?: any,
@@ -115,8 +132,7 @@ export class Http {
       httpsAgent,
     };
 
-    const { data } = await axios(options);
-    return data;
+    return axios(options);
   }
 
   public graphql(query: string, variables?: any): Promise<any> {
