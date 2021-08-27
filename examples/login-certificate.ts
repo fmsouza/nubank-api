@@ -1,23 +1,42 @@
-import { writeFile } from 'fs/promises';
-import * as path from 'path';
+import { createInterface } from 'readline';
 
 import { NubankApi } from '../src';
 
 const CPF: string = 'your-cpf';
 const PASSWORD: string = 'your-password';
-const CERT_PATH: string = './cert-nubank.p12';
 
 const api = new NubankApi({
-  certPath: path.join(__dirname, CERT_PATH)
+  clientName: 'github:fmsouza/nubank-api'
+});
+
+const rl = createInterface({
+  input: process.stdin,
+  output: process.stdout
 });
 
 (async () => {
   try {
-    await api.auth.authenticateWithCertificate(CPF, PASSWORD);
-    console.log('You are authenticated!');
-    console.log(api.authState);
-    await writeFile('./auth-state-cert.json', JSON.stringify(api.authState));
-    process.exit(0);
+    const response = await api.auth.requestAuthenticationCode({
+      cpf: CPF,
+      password: PASSWORD,
+      deviceId: 'macos-test-1'
+    });
+    console.log(response);
+
+    rl.question(`Input the auth code:`, async (authCode: string) => {
+      const certificates = await api.auth.exchangeCertificates({
+        cpf: CPF,
+        password: PASSWORD,
+        deviceId: 'macos-test-1',
+        authCode
+      });
+      console.log(certificates);
+      // await api.auth.authenticateWithCertificate(CPF, PASSWORD);
+      // console.log('You are authenticated!');
+      // console.log(api.authState);
+      // await writeFile('./auth-state-cert.json', JSON.stringify(api.authState));
+      process.exit(0);
+    });
   } catch (e) {
     console.error(e.stack);
   }
