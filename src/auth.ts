@@ -86,13 +86,13 @@ export class Auth {
       public_key_crypto: this._keyPairCrypto.publicKey
     }).catch(({ response }) => {
       console.log('response:', response);
-      if (response.status !== 401 || !response.headers['WWW-Authenticate']) {
+      if (response.status !== 401 || !response.headers['www-authenticate']) {
         throw new Error('Authentication code request failed.');
       }
       return response;
     });
 
-    const parsed = parseAuthenticationHeader(headers['WWW-Authenticate']);
+    const parsed = parseAuthenticationHeader(headers['www-authenticate']);
     this._encryptedCode = parsed.get('device-authorization_encrypted-code') ?? '';
   }
 
@@ -101,7 +101,7 @@ export class Auth {
       throw new Error('No encrypted code found. Did you call `requestAuthenticationCode` before exchanging certs?');
     }
 
-    const data = await this._context.http.request("post", "gen_certificate", {
+    const payload = {
       login: cpf,
       password,
       device_id: deviceId,
@@ -110,7 +110,9 @@ export class Auth {
       public_key_crypto: this._keyPairCrypto?.publicKey,
       code: authCode,
       "encrypted-code": this._encryptedCode
-    });
+    };
+
+    const data = await this._context.http.request("post", "gen_certificate", payload);
 
     const cert = parseCertificate(data.certificate);
     const certCrypto = parseCertificate(data?.certificate_crypto);
