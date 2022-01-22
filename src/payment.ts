@@ -37,13 +37,15 @@ export class Payment {
 
   public async createPixPaymentRequest(
     pixKey: PixKey,
-    amount: number
+    amount: number,
+    message?: string
   ): Promise<PixPaymentRequest> {
     const savingsAccountId: string = await this._context.account.getId();
 
     const createPaymentRequestInput = {
       amount,
       pixAlias: pixKey.value,
+      message: message || null,
       savingsAccountId,
     };
 

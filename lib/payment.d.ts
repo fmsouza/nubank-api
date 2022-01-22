@@ -5,5 +5,5 @@ export declare class Payment {
     constructor(_context: Context);
     createBoleto(amount: number): Promise<Boleto>;
     createMoneyRequest(amount: number): Promise<MoneyRequest>;
-    createPixPaymentRequest(pixKey: PixKey, amount: number): Promise<PixPaymentRequest>;
+    createPixPaymentRequest(pixKey: PixKey, amount: number, message?: string): Promise<PixPaymentRequest>;
 }

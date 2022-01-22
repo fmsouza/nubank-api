@@ -10,7 +10,7 @@ const api = new NubankApi(authState);
   try {
     const pixKeys: PixKey[] = await api.account.getPixKeys();
     console.log(pixKeys);
-    const paymentRequest = await api.payment.createPixPaymentRequest(pixKeys[0], 100);
+    const paymentRequest = await api.payment.createPixPaymentRequest(pixKeys[0], 100, "Wow, such payment");
     console.log(paymentRequest);
     process.exit(0);
   } catch (e) {
