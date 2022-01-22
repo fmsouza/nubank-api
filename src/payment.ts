@@ -48,9 +48,10 @@ export class Payment {
     };
 
     const { data: moneyRequestData } = await this._context.http.graphql(
-      GqlOperations.MUTATION_CREATE_MONEY_REQUEST,
+      GqlOperations.MUTATION_CREATE_PIX_MONEY_REQUEST,
       { createPaymentRequestInput }
     );
-    return moneyRequestData?.createMoneyRequest;
+    
+    return moneyRequestData?.createPaymentRequest;
   }
 }
