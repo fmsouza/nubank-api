@@ -1,6 +1,6 @@
 import { CLIENT_SECRET } from "./constants";
 import { Context } from "./context";
-import { generateKeyPair, parseAuthenticationHeader, KeyPair, parseCertificate, Certificate } from "./utils/cert";
+import { generateKeyPair, parseAuthenticationHeader, KeyPair, parseCertificate, generateSelfSignedCertificate, Pkcs12Certificate, serializePublicKey } from "./utils/cert";
 
 type RequestAuthenticationCodeInput = {
   cpf: string;
@@ -12,11 +12,11 @@ type ExchangeCertificatesInput = RequestAuthenticationCodeInput & { authCode: st
 
 export class Auth {
 
-  private _keyPair?: KeyPair;
-  private _keyPairCrypto?: KeyPair;
+  private _keyPair: KeyPair = generateKeyPair();
+  private _keyPairCrypto: KeyPair = generateKeyPair();
   private _encryptedCode: string = '';
 
-  public constructor(private _context: Context) {}
+  public constructor(private _context: Context) { }
 
   private async authenticate(cpf: string, password: string): Promise<void> {
     const data = await this._context.http.request("post", "login", {
@@ -73,19 +73,15 @@ export class Auth {
     this.updateAuthState(data);
   }
 
-  public async requestAuthenticationCode({ cpf, password, deviceId }: RequestAuthenticationCodeInput): Promise<void> {
-    this._keyPair = generateKeyPair();
-    this._keyPairCrypto = generateKeyPair();
-
+  public async requestAuthenticationCode({ cpf, password, deviceId }: RequestAuthenticationCodeInput): Promise<string> {
     const { headers } = await this._context.http.rawRequest("post", "gen_certificate", {
       login: cpf,
       password,
       device_id: deviceId,
       model: [this._context.http.clientName, deviceId].join(' - '),
-      public_key: this._keyPair.publicKey,
-      public_key_crypto: this._keyPairCrypto.publicKey
+      public_key: serializePublicKey(this._keyPair.publicKey),
+      public_key_crypto: serializePublicKey(this._keyPairCrypto.publicKey)
     }).catch(({ response }) => {
-      console.log('response:', response);
       if (response.status !== 401 || !response.headers['www-authenticate']) {
         throw new Error('Authentication code request failed.');
       }
@@ -94,9 +90,11 @@ export class Auth {
 
     const parsed = parseAuthenticationHeader(headers['www-authenticate']);
     this._encryptedCode = parsed.get('device-authorization_encrypted-code') ?? '';
+
+    return parsed.get('sent-to') ?? '';
   }
 
-  public async exchangeCertificates({ cpf, password, deviceId, authCode }: ExchangeCertificatesInput): Promise<Certificate[]> {
+  public async exchangeCertificates({ cpf, password, deviceId, authCode }: ExchangeCertificatesInput): Promise<{ cert: Pkcs12Certificate, certCrypto: Pkcs12Certificate }> {
     if (!this._encryptedCode) {
       throw new Error('No encrypted code found. Did you call `requestAuthenticationCode` before exchanging certs?');
     }
@@ -106,8 +104,8 @@ export class Auth {
       password,
       device_id: deviceId,
       model: [this._context.http.clientName, deviceId].join(' - '),
-      public_key: this._keyPair?.publicKey,
-      public_key_crypto: this._keyPairCrypto?.publicKey,
+      public_key: serializePublicKey(this._keyPair?.publicKey),
+      public_key_crypto: serializePublicKey(this._keyPairCrypto?.publicKey),
       code: authCode,
       "encrypted-code": this._encryptedCode
     };
@@ -117,7 +115,10 @@ export class Auth {
     const cert = parseCertificate(data.certificate);
     const certCrypto = parseCertificate(data?.certificate_crypto);
 
-    return [cert, certCrypto];
+    return {
+      cert: generateSelfSignedCertificate(this._keyPair, cert),
+      certCrypto: generateSelfSignedCertificate(this._keyPairCrypto, certCrypto)
+    };
   }
 
   private updateAuthState(data: Record<string, any>): void {
