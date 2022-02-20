@@ -84,14 +84,14 @@ export class Account {
   }
 
   public async getBalance(): Promise<number> {
-    const data = await this._context.http.graphql(
+    const { data } = await this._context.http.graphql(
       GqlOperations.QUERY_ACCOUNT_BALANCE
     );
     return data.viewer?.savingsAccount?.currentSavingsBalance?.netAmount;
   }
 
   public async getFeed(): Promise<AccountTransaction[]> {
-    const data = await this._context.http.graphql(
+    const { data } = await this._context.http.graphql(
       GqlOperations.QUERY_ACCOUNT_FEED
     );
     return data?.viewer?.savingsAccount?.feed;
