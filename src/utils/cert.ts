@@ -22,8 +22,8 @@ export function parseAuthenticationHeader(content: string): Map<string, string> 
   const record = new Map<string, string>();
   content.split(',').forEach((item) => {
     let [key, value]: string[] = item.split('=');
-    key = key.trim().replace(' ', '_');
-    value = key.replace('"', '');
+    key = key.trim().replace(/ /g, '_');
+    value = value.replace(/"/g, '');
     record.set(key, value);
   });
   return record;
