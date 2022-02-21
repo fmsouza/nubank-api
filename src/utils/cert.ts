@@ -31,11 +31,6 @@ export function generateSelfSignedCertificate(keyPair: KeyPair, cert: Certificat
   return pkcs12.toPkcs12Asn1(keyPair.privateKey, cert, password);
 }
 
-export function pkcs12ToBuffer(cert: Pkcs12Asn1): string {
-  return asn1.toDer(cert).getBytes();
-}
-
-export function pkcs12Decode64(contents: string): Pkcs12Asn1 {
-  const b64content = util.decode64(contents);
-  return asn1.fromDer(b64content);
+export function pkcs12ToBuffer(cert: Pkcs12Asn1): Buffer {
+  return Buffer.from(asn1.toDer(cert).getBytes(), 'binary');
 }

@@ -4,7 +4,6 @@ import { readFile } from "fs/promises";
 
 
 import { DISCOVERY_APP_URL, DISCOVERY_URL, HEADERS } from "../constants";
-import { Pkcs12Asn1, pkcs12Decode64, pkcs12ToBuffer } from "./cert";
 
 interface Route {
   href: string;
@@ -33,7 +32,7 @@ interface HttpConstructor {
 export class Http {
   private _clientName: string;
   private _certPath?: string;
-  private _cert?: Pkcs12Asn1;
+  private _cert?: Buffer;
   private _accessToken: string = "";
   private _refreshToken: string = "";
   private _refreshBefore?: Date;
@@ -96,10 +95,10 @@ export class Http {
     this._publicUrls = { ...baseUrls, ...appUrls };
   }
 
-  private async getHttpsCertificate(): Promise<Pkcs12Asn1 | undefined> {
+  private async getHttpsCertificate(): Promise<Buffer | undefined> {
     if (this._certPath && !this._cert) {
-      const certFileContent = await (await readFile(this._certPath)).toString('utf8');
-      this._cert = pkcs12Decode64(certFileContent);
+      const certFileContent = await readFile(this._certPath)
+      this._cert = certFileContent;
     }
     return this._cert;
   }
@@ -134,9 +133,8 @@ export class Http {
       httpsAgent = new Agent({
         rejectUnauthorized: false,
         passphrase: "",
-        pfx: pkcs12ToBuffer(cert)
+        pfx: cert
       });
-      console.log(httpsAgent);
     }
 
     const options: AxiosRequestConfig = {
