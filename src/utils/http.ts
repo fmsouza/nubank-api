@@ -1,6 +1,7 @@
 import axios, { AxiosRequestConfig, Method } from "axios";
 import { Agent } from "https";
-import { readFileSync } from "fs";
+import { readFile } from "fs/promises";
+
 
 import { DISCOVERY_APP_URL, DISCOVERY_URL, HEADERS } from "../constants";
 
@@ -19,6 +20,7 @@ export interface AuthState {
 }
 
 interface HttpConstructor {
+  clientName?: string;
   certPath?: string;
   accessToken?: string;
   refreshToken?: string;
@@ -28,7 +30,9 @@ interface HttpConstructor {
 }
 
 export class Http {
+  private _clientName: string;
   private _certPath?: string;
+  private _cert?: Buffer;
   private _accessToken: string = "";
   private _refreshToken: string = "";
   private _refreshBefore?: Date;
@@ -45,6 +49,10 @@ export class Http {
     };
   }
 
+  public get clientName(): string {
+    return this._clientName;
+  }
+
   public set accessToken(accessToken: string) {
     this._accessToken = accessToken;
   }
@@ -57,11 +65,16 @@ export class Http {
     this._refreshBefore = new Date(datetime);
   }
 
+  public set certPath(path: string) {
+    this._certPath = path;
+  }
+
   public set privateUrls(privateUrls: Routes) {
     this._privateUrls = privateUrls;
   }
 
   public constructor(params: HttpConstructor = {}) {
+    this._clientName = params?.clientName ?? "Nubank API";
     this._certPath = params?.certPath;
     this.accessToken = params?.accessToken ?? "";
     this.refreshToken = params?.refreshToken ?? "";
@@ -82,7 +95,25 @@ export class Http {
     this._publicUrls = { ...baseUrls, ...appUrls };
   }
 
+  private async getHttpsCertificate(): Promise<Buffer | undefined> {
+    if (this._certPath && !this._cert) {
+      const certFileContent = await readFile(this._certPath)
+      this._cert = certFileContent;
+    }
+    return this._cert;
+  }
+
   public async request(
+    method: Method,
+    id: string,
+    body?: any,
+    params?: any
+  ): Promise<any> {
+    const { data } = await this.rawRequest(method, id, body, params);
+    return data;
+  }
+
+  public async rawRequest(
     method: Method,
     id: string,
     body?: any,
@@ -97,12 +128,12 @@ export class Http {
     }
 
     let httpsAgent: Agent | undefined;
-    if (this._certPath) {
-      const certStream: Buffer = readFileSync(this._certPath);
+    const cert = await this.getHttpsCertificate();
+    if (cert) {
       httpsAgent = new Agent({
         rejectUnauthorized: false,
         passphrase: "",
-        pfx: certStream, // TODO: Fix error when certificate is added
+        pfx: cert
       });
     }
 
@@ -115,8 +146,7 @@ export class Http {
       httpsAgent,
     };
 
-    const { data } = await axios(options);
-    return data;
+    return axios(options);
   }
 
   public graphql(query: string, variables?: any): Promise<any> {
