@@ -148,8 +148,14 @@ export class Http {
     return axios(options);
   }
 
-  public graphql(query: string, variables?: any): Promise<any> {
-    return this.request("post", "ghostflame", { query, variables });
+  public async graphql(query: string, variables?: any): Promise<any> {
+    try {
+      const response = await this.request("post", "ghostflame", { query, variables });
+      return response;
+    } catch (e) {
+      const error = e as any;
+      throw error.response.data.errors[0] ?? error;
+    }
   }
 
   public async getUrl(id: string): Promise<string> {
