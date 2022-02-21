@@ -31,7 +31,7 @@ function saveCertificate(filepath: string, cert: Pkcs12Asn1): Promise<void> {
     });
     console.log('Sent to:', response);
 
-    rl.question(`Input the auth code:`, async (authCode: string) => {
+    rl.question(`Input the auth code: `, async (authCode: string) => {
       const certificates = await api.auth.exchangeCertificates({
         cpf: CPF,
         password: PASSWORD,
