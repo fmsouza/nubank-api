@@ -2,7 +2,6 @@ import axios, { AxiosRequestConfig, Method } from "axios";
 import { Agent } from "https";
 import { readFile } from "fs/promises";
 
-
 import { DISCOVERY_APP_URL, DISCOVERY_URL, HEADERS } from "../constants";
 
 interface Route {
@@ -97,7 +96,7 @@ export class Http {
 
   private async getHttpsCertificate(): Promise<Buffer | undefined> {
     if (this._certPath && !this._cert) {
-      const certFileContent = await readFile(this._certPath)
+      const certFileContent = await readFile(this._certPath);
       this._cert = certFileContent;
     }
     return this._cert;
@@ -133,7 +132,7 @@ export class Http {
       httpsAgent = new Agent({
         rejectUnauthorized: false,
         passphrase: "",
-        pfx: cert
+        pfx: cert,
       });
     }
 
