@@ -1,6 +1,6 @@
 import { CLIENT_SECRET } from "./constants";
 import { Context } from "./context";
-import { generateKeyPair, parseAuthenticationHeader, KeyPair, parseCertificate, generateSelfSignedCertificate, Pkcs12Certificate, serializePublicKey } from "./utils/cert";
+import { generateKeyPair, parseAuthenticationHeader, KeyPair, parseCertificate, generateSelfSignedCertificate, serializePublicKey, Pkcs12Asn1 } from "./utils/cert";
 
 type RequestAuthenticationCodeInput = {
   cpf: string;
@@ -47,8 +47,12 @@ export class Auth {
 
   public async authenticateWithCertificate(
     cpf: string,
-    password: string
+    password: string,
+    certPath?: string
   ): Promise<void> {
+    if (certPath) {
+      this._context.http.certPath = certPath;
+    }
     const data = await this._context.http.request("post", "token", {
       client_id: "legacy_client_id",
       client_secret: "legacy_client_secret",
@@ -94,7 +98,7 @@ export class Auth {
     return parsed.get('sent-to') ?? '';
   }
 
-  public async exchangeCertificates({ cpf, password, deviceId, authCode }: ExchangeCertificatesInput): Promise<{ cert: Pkcs12Certificate, certCrypto: Pkcs12Certificate }> {
+  public async exchangeCertificates({ cpf, password, deviceId, authCode }: ExchangeCertificatesInput): Promise<{ cert: Pkcs12Asn1, certCrypto: Pkcs12Asn1 }> {
     if (!this._encryptedCode) {
       throw new Error('No encrypted code found. Did you call `requestAuthenticationCode` before exchanging certs?');
     }

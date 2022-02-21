@@ -1,8 +1,10 @@
 import axios, { AxiosRequestConfig, Method } from "axios";
 import { Agent } from "https";
-import { readFileSync } from "fs";
+import { readFile } from "fs/promises";
+
 
 import { DISCOVERY_APP_URL, DISCOVERY_URL, HEADERS } from "../constants";
+import { Pkcs12Asn1, pkcs12Decode64, pkcs12ToBuffer } from "./cert";
 
 interface Route {
   href: string;
@@ -31,6 +33,7 @@ interface HttpConstructor {
 export class Http {
   private _clientName: string;
   private _certPath?: string;
+  private _cert?: Pkcs12Asn1;
   private _accessToken: string = "";
   private _refreshToken: string = "";
   private _refreshBefore?: Date;
@@ -63,6 +66,10 @@ export class Http {
     this._refreshBefore = new Date(datetime);
   }
 
+  public set certPath(path: string) {
+    this._certPath = path;
+  }
+
   public set privateUrls(privateUrls: Routes) {
     this._privateUrls = privateUrls;
   }
@@ -87,6 +94,14 @@ export class Http {
       axios.get(DISCOVERY_APP_URL).then((r) => r.data),
     ]);
     this._publicUrls = { ...baseUrls, ...appUrls };
+  }
+
+  private async getHttpsCertificate(): Promise<Pkcs12Asn1 | undefined> {
+    if (this._certPath && !this._cert) {
+      const certFileContent = await (await readFile(this._certPath)).toString('utf8');
+      this._cert = pkcs12Decode64(certFileContent);
+    }
+    return this._cert;
   }
 
   public async request(
@@ -114,13 +129,14 @@ export class Http {
     }
 
     let httpsAgent: Agent | undefined;
-    if (this._certPath) {
-      const certStream: Buffer = readFileSync(this._certPath);
+    const cert = await this.getHttpsCertificate();
+    if (cert) {
       httpsAgent = new Agent({
         rejectUnauthorized: false,
         passphrase: "",
-        pfx: certStream, // TODO: Fix error when certificate is added
+        pfx: pkcs12ToBuffer(cert)
       });
+      console.log(httpsAgent);
     }
 
     const options: AxiosRequestConfig = {
