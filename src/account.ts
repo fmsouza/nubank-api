@@ -13,7 +13,7 @@ export class Account {
   private _accountId: string = "";
   private _customerId: string = "";
 
-  public constructor(private _context: Context) {}
+  public constructor(private _context: Context) { }
 
   public me(): Promise<Customer> {
     return this._context.http
@@ -95,6 +95,14 @@ export class Account {
       GqlOperations.QUERY_ACCOUNT_FEED
     );
     return data?.viewer?.savingsAccount?.feed;
+  }
+
+  public async getFeedPaginated(cursor?: string): Promise<AccountTransaction[]> {
+    const { data } = await this._context.http.graphql(
+      GqlOperations.QUERY_ACCOUNT_FEED_PAGINATED,
+      { cursor }
+    );
+    return data?.viewer?.savingsAccount?.feedItems?.edges?.node ?? [];
   }
 
   public getTransactions(): Promise<AccountTransaction[]> {

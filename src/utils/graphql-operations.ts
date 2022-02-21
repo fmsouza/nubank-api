@@ -57,6 +57,30 @@ query GetAccountFeed {
 }
 `;
 
+export const QUERY_ACCOUNT_FEED_PAGINATED: string = `
+query accountFeedPaginated($cursor: String) {
+  viewer {
+      savingsAccount {
+          feedItems(cursor: $cursor) {
+              pageInfo {
+                  hasNextPage
+              }
+              edges {
+                  cursor
+                  node {
+                      id
+                      __typename
+                      title
+                      detail
+                      postDate
+                  }
+              }
+          }
+      }
+  }
+}
+`;
+
 export const QUERY_ACCOUNT_ID: string = `
 query RequestMoney {
   viewer {
