@@ -51,6 +51,8 @@ rl.question(
 );
 ```
 
+For more examples, check the [examples](./examples) folder.
+
 ## API
 
 ### new NubankApi(params?: NubankApiConstructor)
@@ -60,6 +62,7 @@ The constructor takes an object containing the authentication details, which are
 | Key | Type | Description |
 |-----|------|-------------|
 | certPath | string | (Optional) path to the SSL certificate. Mandatory in case of authentication via p12 certificate. |
+| clientName | string | (Optional) name of your client. Used to identify the origin of the requests in your account. |
 | privateUrls | Routes | (Optional) private routes received after authentication. |
 | publicUrls | Record<string, string> | (Optional) public routes received after authentication. |
 
