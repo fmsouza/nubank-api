@@ -13,13 +13,18 @@ export const HEADERS: { [key: string]: string } = {
 };
 
 export const PAYMENT_EVENT_TYPES = [
-  "TransferOutEvent",
-  "TransferInEvent",
-  "TransferOutReversalEvent",
-  "BarcodePaymentEvent",
-  "DebitPurchaseEvent",
-  "DebitPurchaseReversalEvent",
-  "BillPaymentEvent",
-  "DebitWithdrawalFeeEvent",
-  "DebitWithdrawalEvent",
+  'TransferOutEvent',
+  'TransferInEvent',
+  'TransferOutReversalEvent',
+  'BarcodePaymentEvent',
+  'DebitPurchaseEvent',
+  'DebitPurchaseReversalEvent',
+  'BillPaymentEvent',
+  'DebitWithdrawalFeeEvent',
+  'DebitWithdrawalEvent',
+  'PixTransferOutEvent',
+  'PixTransferInEvent',
+  'PixTransferOutReversalEvent',
+  'PixTransferFailedEvent',
+  'PixTransferScheduledEvent',
 ];
