@@ -1,4 +1,4 @@
-import { writeFile } from 'fs/promises';
+import { readFile, writeFile } from 'fs/promises';
 
 import { NubankApi } from '../src';
 
@@ -6,12 +6,11 @@ const CPF: string = 'your-cpf';
 const PASSWORD: string = 'your-password';
 const CERT_PATH: string = './cert.p12';
 
-const api = new NubankApi({
-  clientName: 'github:fmsouza/nubank-api',
-  certPath: CERT_PATH
-});
-
 (async () => {
+  const api = new NubankApi({
+    clientName: 'github:fmsouza/nubank-api',
+    cert: await readFile(CERT_PATH)
+  });
   try {
     await api.auth.authenticateWithCertificate(CPF, PASSWORD);
     await writeFile('./auth-state-cert.json', JSON.stringify(api.authState));
