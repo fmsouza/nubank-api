@@ -9,7 +9,7 @@ const authState = JSON.parse(readFileSync('./auth-state-cert.json').toString('ut
 const api = new NubankApi({
   ...authState,
   clientName: 'github:fmsouza/nubank-api',
-  certPath: CERT_PATH,
+  cert: readFileSync(CERT_PATH),
 });
 
 (async () => {
