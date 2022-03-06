@@ -117,7 +117,7 @@ export class Http {
 
     let httpsAgent: any;
     if (this._cert) {
-      const { Agent } = await import('https');
+      const { Agent } = await import("https");
       httpsAgent = new Agent({
         rejectUnauthorized: false,
         passphrase: "",
@@ -139,7 +139,10 @@ export class Http {
 
   public async graphql(query: string, variables?: any): Promise<any> {
     try {
-      const response = await this.request("post", "ghostflame", { query, variables });
+      const response = await this.request("post", "ghostflame", {
+        query,
+        variables,
+      });
       return response;
     } catch (e) {
       const error = e as any;

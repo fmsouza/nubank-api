@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import { AuthState, Http, Routes } from "./utils/http";
 import { Auth } from "./auth";
 import { Account } from "./account";
@@ -5,7 +6,7 @@ import { Card } from "./card";
 import { Payment } from "./payment";
 interface NubankApiConstructor {
     clientName?: string;
-    certPath?: string;
+    cert?: Buffer;
     accessToken?: string;
     privateUrls?: Routes;
     publicUrls?: Record<string, string>;

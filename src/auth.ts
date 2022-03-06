@@ -25,7 +25,7 @@ export class Auth {
   private _keyPairCrypto: KeyPair = generateKeyPair();
   private _encryptedCode: string = "";
 
-  public constructor(private _context: Context) { }
+  public constructor(private _context: Context) {}
 
   private async authenticate(cpf: string, password: string): Promise<void> {
     const data = await this._context.http.request("post", "login", {

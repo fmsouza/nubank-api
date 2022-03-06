@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import { Context } from "./context";
 import { Pkcs12Asn1 } from "./utils/cert";
 declare type RequestAuthenticationCodeInput = {
@@ -16,7 +17,7 @@ export declare class Auth {
     constructor(_context: Context);
     private authenticate;
     authenticateWithQrCode(cpf: string, password: string, qrCodeId: string): Promise<void>;
-    authenticateWithCertificate(cpf: string, password: string, certPath?: string): Promise<void>;
+    authenticateWithCertificate(cpf: string, password: string, cert?: Buffer): Promise<void>;
     authenticateWithRefreshToken(refreshToken: string): Promise<void>;
     requestAuthenticationCode({ cpf, password, deviceId, }: RequestAuthenticationCodeInput): Promise<string>;
     exchangeCertificates({ cpf, password, deviceId, authCode, }: ExchangeCertificatesInput): Promise<{

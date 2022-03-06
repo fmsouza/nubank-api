@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import { Method } from "axios";
 interface Route {
     href: string;
@@ -12,7 +13,7 @@ export interface AuthState {
 }
 interface HttpConstructor {
     clientName?: string;
-    certPath?: string;
+    cert?: Buffer;
     accessToken?: string;
     refreshToken?: string;
     refreshBefore?: string;
@@ -21,7 +22,6 @@ interface HttpConstructor {
 }
 export declare class Http {
     private _clientName;
-    private _certPath?;
     private _cert?;
     private _accessToken;
     private _refreshToken;
@@ -33,11 +33,10 @@ export declare class Http {
     set accessToken(accessToken: string);
     set refreshToken(refreshToken: string);
     set refreshBefore(datetime: string);
-    set certPath(path: string);
+    set cert(cert: Buffer);
     set privateUrls(privateUrls: Routes);
     constructor(params?: HttpConstructor);
     ready(): Promise<void>;
-    private getHttpsCertificate;
     request(method: Method, id: string, body?: any, params?: any): Promise<any>;
     rawRequest(method: Method, id: string, body?: any, params?: any): Promise<any>;
     graphql(query: string, variables?: any): Promise<any>;
