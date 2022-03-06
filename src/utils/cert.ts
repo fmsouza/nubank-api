@@ -1,4 +1,4 @@
-import { asn1, pkcs12, pki, util } from "node-forge";
+import { asn1, pkcs12, pki } from "node-forge";
 
 export type Certificate = pki.Certificate;
 export type KeyPair = pki.rsa.KeyPair;
