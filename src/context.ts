@@ -7,7 +7,7 @@ import { Payment } from "./payment";
 
 interface NubankApiConstructor {
   clientName?: string;
-  certPath?: string;
+  cert?: Buffer;
   accessToken?: string;
   privateUrls?: Routes;
   publicUrls?: Record<string, string>;

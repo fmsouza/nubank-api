@@ -1,6 +1,4 @@
 import axios, { AxiosRequestConfig, Method } from "axios";
-import { Agent } from "https";
-import { readFile } from "fs/promises";
 
 import { DISCOVERY_APP_URL, DISCOVERY_URL, HEADERS } from "../constants";
 
@@ -20,7 +18,7 @@ export interface AuthState {
 
 interface HttpConstructor {
   clientName?: string;
-  certPath?: string;
+  cert?: Buffer;
   accessToken?: string;
   refreshToken?: string;
   refreshBefore?: string;
@@ -30,7 +28,6 @@ interface HttpConstructor {
 
 export class Http {
   private _clientName: string;
-  private _certPath?: string;
   private _cert?: Buffer;
   private _accessToken: string = "";
   private _refreshToken: string = "";
@@ -64,8 +61,8 @@ export class Http {
     this._refreshBefore = new Date(datetime);
   }
 
-  public set certPath(path: string) {
-    this._certPath = path;
+  public set cert(cert: Buffer) {
+    this._cert = cert;
   }
 
   public set privateUrls(privateUrls: Routes) {
@@ -74,7 +71,7 @@ export class Http {
 
   public constructor(params: HttpConstructor = {}) {
     this._clientName = params?.clientName ?? "Nubank API";
-    this._certPath = params?.certPath;
+    this._cert = params?.cert;
     this.accessToken = params?.accessToken ?? "";
     this.refreshToken = params?.refreshToken ?? "";
     this.refreshBefore = params?.refreshBefore ?? "";
@@ -92,14 +89,6 @@ export class Http {
       axios.get(DISCOVERY_APP_URL).then((r) => r.data),
     ]);
     this._publicUrls = { ...baseUrls, ...appUrls };
-  }
-
-  private async getHttpsCertificate(): Promise<Buffer | undefined> {
-    if (this._certPath && !this._cert) {
-      const certFileContent = await readFile(this._certPath);
-      this._cert = certFileContent;
-    }
-    return this._cert;
   }
 
   public async request(
@@ -126,13 +115,13 @@ export class Http {
       headers["Authorization"] = `Bearer ${this._accessToken}`;
     }
 
-    let httpsAgent: Agent | undefined;
-    const cert = await this.getHttpsCertificate();
-    if (cert) {
+    let httpsAgent: any;
+    if (this._cert) {
+      const { Agent } = await import('https');
       httpsAgent = new Agent({
         rejectUnauthorized: false,
         passphrase: "",
-        pfx: cert,
+        pfx: this._cert,
       });
     }
 

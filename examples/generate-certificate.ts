@@ -1,5 +1,5 @@
 import { createInterface } from 'readline';
-import { writeFile } from 'fs/promises';
+import { readFile, writeFile } from 'fs/promises';
 
 import { NubankApi } from '../src';
 import { Pkcs12Asn1, pkcs12ToBuffer } from '../src/utils/cert';
@@ -41,7 +41,9 @@ function saveCertificate(filepath: string, cert: Pkcs12Asn1): Promise<void> {
       await saveCertificate('./cert.p12', certificates.cert);
       await saveCertificate('./cert-crypto.p12', certificates.certCrypto);
 
-      await api.auth.authenticateWithCertificate(CPF, PASSWORD, './cert.p12');
+      const authCert = await readFile('./cert.p12');
+
+      await api.auth.authenticateWithCertificate(CPF, PASSWORD, authCert);
 
       await writeFile('./auth-state-cert.json', JSON.stringify(api.authState));
       console.log('You are authenticated!');

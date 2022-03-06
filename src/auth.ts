@@ -25,7 +25,7 @@ export class Auth {
   private _keyPairCrypto: KeyPair = generateKeyPair();
   private _encryptedCode: string = "";
 
-  public constructor(private _context: Context) {}
+  public constructor(private _context: Context) { }
 
   private async authenticate(cpf: string, password: string): Promise<void> {
     const data = await this._context.http.request("post", "login", {
@@ -57,10 +57,10 @@ export class Auth {
   public async authenticateWithCertificate(
     cpf: string,
     password: string,
-    certPath?: string
+    cert?: Buffer
   ): Promise<void> {
-    if (certPath) {
-      this._context.http.certPath = certPath;
+    if (cert) {
+      this._context.http.cert = cert;
     }
     const data = await this._context.http.request("post", "token", {
       client_id: "legacy_client_id",
