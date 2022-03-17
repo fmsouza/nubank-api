@@ -7,7 +7,7 @@ import {
   parseCertificate,
   generateSelfSignedCertificate,
   serializePublicKey,
-  Pkcs12Asn1,
+  pkcs12ToBuffer,
 } from "./utils/cert";
 
 type RequestAuthenticationCodeInput = {
@@ -120,8 +120,8 @@ export class Auth {
     deviceId,
     authCode,
   }: ExchangeCertificatesInput): Promise<{
-    cert: Pkcs12Asn1;
-    certCrypto: Pkcs12Asn1;
+    cert: Buffer;
+    certCrypto: Buffer;
   }> {
     if (!this._encryptedCode) {
       throw new Error(
@@ -147,14 +147,17 @@ export class Auth {
     );
 
     const cert = parseCertificate(data.certificate);
+    const selfSignedCert = generateSelfSignedCertificate(this._keyPair, cert);
+
     const certCrypto = parseCertificate(data?.certificate_crypto);
+    const selfSignedCertCrypto = generateSelfSignedCertificate(
+      this._keyPairCrypto,
+      certCrypto
+    );
 
     return {
-      cert: generateSelfSignedCertificate(this._keyPair, cert),
-      certCrypto: generateSelfSignedCertificate(
-        this._keyPairCrypto,
-        certCrypto
-      ),
+      cert: pkcs12ToBuffer(selfSignedCert),
+      certCrypto: pkcs12ToBuffer(selfSignedCertCrypto),
     };
   }
 

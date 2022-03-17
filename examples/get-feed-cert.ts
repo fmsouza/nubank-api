@@ -1,4 +1,5 @@
 import { readFileSync } from 'fs';
+import { writeFile } from 'fs/promises';
 
 import { AccountTransaction, NubankApi } from '../src';
 
@@ -15,7 +16,7 @@ const api = new NubankApi({
 (async () => {
   try {
     const transactions: AccountTransaction[] = await api.account.getFeed();
-    console.log(transactions);
+    await writeFile('./transactions.json', JSON.stringify(transactions));
     process.exit(0);
   } catch (e) {
     const _error = e as Error;
