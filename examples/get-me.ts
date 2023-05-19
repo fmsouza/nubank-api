@@ -12,6 +12,7 @@ const api = new NubankApi(authState);
     console.log(me);
     process.exit(0);
   } catch (e) {
-    console.error(e.stack);
+    const _err = e as Error;
+    console.error(_err.stack);
   }
 })();

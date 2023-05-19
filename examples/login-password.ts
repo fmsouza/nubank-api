@@ -23,6 +23,7 @@ rl.question(`Generate a QRcode and read with the app: ${AUTH_CODE}`, async () =>
     await writeFile('./auth-state.json', JSON.stringify(api.authState));
     process.exit(0);
   } catch (e) {
-    console.error(e.stack);
+    const _err = e as Error;
+    console.error(_err.stack);
   }
 });
