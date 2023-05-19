@@ -1,6 +1,5 @@
 /// <reference types="node" />
 import { Context } from "./context";
-import { Pkcs12Asn1 } from "./utils/cert";
 declare type RequestAuthenticationCodeInput = {
     cpf: string;
     password: string;
@@ -21,8 +20,8 @@ export declare class Auth {
     authenticateWithRefreshToken(refreshToken: string): Promise<void>;
     requestAuthenticationCode({ cpf, password, deviceId, }: RequestAuthenticationCodeInput): Promise<string>;
     exchangeCertificates({ cpf, password, deviceId, authCode, }: ExchangeCertificatesInput): Promise<{
-        cert: Pkcs12Asn1;
-        certCrypto: Pkcs12Asn1;
+        cert: Buffer;
+        certCrypto: Buffer;
     }>;
     private updateAuthState;
     revokeAccess(): void;
