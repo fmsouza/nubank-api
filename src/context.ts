@@ -1,27 +1,19 @@
-import { AuthState, Http, Routes } from "./utils/http";
+import { AuthState, HttpClient, HttpClientConstructor } from "./http";
 
 import { Auth } from "./auth";
 import { Account } from "./account";
 import { Card } from "./card";
 import { Payment } from "./payment";
 
-interface NubankApiConstructor {
-  clientName?: string;
-  cert?: Buffer;
-  accessToken?: string;
-  privateUrls?: Routes;
-  publicUrls?: Record<string, string>;
-}
-
 export class Context {
-  private _http: Http;
+  private _http: HttpClient;
   private _auth: Auth;
   private _account: Account;
   private _card: Card;
   private _payment: Payment;
 
-  public constructor(params?: NubankApiConstructor) {
-    this._http = new Http(params);
+  public constructor(params?: HttpClientConstructor) {
+    this._http = new HttpClient(params);
     this._auth = new Auth(this);
     this._account = new Account(this);
     this._card = new Card(this);
@@ -32,7 +24,7 @@ export class Context {
     return this._http.authState;
   }
 
-  public get http(): Http {
+  public get http(): HttpClient {
     return this._http;
   }
 

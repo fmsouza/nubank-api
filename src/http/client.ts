@@ -2,13 +2,15 @@ import axios, { AxiosRequestConfig, Method } from "axios";
 
 import { DISCOVERY_APP_URL, DISCOVERY_URL, HEADERS } from "../constants";
 
-interface Route {
+type Route = {
   href: string;
 }
 
+type Env = 'node' | 'rn' | 'web';
+
 export type Routes = Record<string, Route>;
 
-export interface AuthState {
+export type AuthState = {
   accessToken?: string;
   refreshToken?: string;
   refreshBefore?: Date;
@@ -16,7 +18,7 @@ export interface AuthState {
   publicUrls: Record<string, string>;
 }
 
-interface HttpConstructor {
+export type HttpClientConstructor = {
   clientName?: string;
   cert?: Buffer;
   accessToken?: string;
@@ -24,9 +26,10 @@ interface HttpConstructor {
   refreshBefore?: string;
   privateUrls?: Routes;
   publicUrls?: Record<string, string>;
+  env?: Env;
 }
 
-export class Http {
+export class HttpClient {
   private _clientName: string;
   private _cert?: Buffer;
   private _accessToken: string = "";
@@ -34,6 +37,7 @@ export class Http {
   private _refreshBefore?: Date;
   private _privateUrls: Routes;
   private _publicUrls: Record<string, string>;
+  private _env: Env;
 
   public get authState(): AuthState {
     return {
@@ -69,7 +73,7 @@ export class Http {
     this._privateUrls = privateUrls;
   }
 
-  public constructor(params: HttpConstructor = {}) {
+  public constructor(params: HttpClientConstructor = {}) {
     this._clientName = params?.clientName ?? "Nubank API";
     this._cert = params?.cert;
     this.accessToken = params?.accessToken ?? "";
@@ -77,6 +81,7 @@ export class Http {
     this.refreshBefore = params?.refreshBefore ?? "";
     this._privateUrls = params?.privateUrls ?? {};
     this._publicUrls = params?.publicUrls ?? {};
+    this._env = params?.env ?? 'node';
   }
 
   public async ready(): Promise<void> {
