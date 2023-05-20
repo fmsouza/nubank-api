@@ -76,7 +76,7 @@ All the operations available are methods nested within the object properties.
 | [account](./src/account.ts) | Contains methods to access the user account details and the checking account transactions and bills |
 | [card](./src/card.ts) | Contains methods to retrieve the feed of transactions from the credit card |
 | [payment](./src/payment.ts) | Contains methods to create payment requests |
-| [http](./src/utils/http.ts) | Wrapper for the API access used by the other modules. Don't use it unless you need to make custom requests not supported by this lib |
+| [http](./src/http/client.ts) | Wrapper for the API access used by the other modules. Don't use it unless you need to make custom requests not supported by this lib |
 
 ## LICENSE
 
