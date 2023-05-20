@@ -25,6 +25,10 @@ export class Auth {
   private _keyPairCrypto: KeyPair = generateKeyPair();
   private _encryptedCode: string = "";
 
+  public get context(): Context {
+    return this._context;
+  }
+
   public constructor(private _context: Context) {}
 
   private async authenticate(cpf: string, password: string): Promise<void> {

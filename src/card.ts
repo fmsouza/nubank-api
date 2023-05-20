@@ -1,27 +1,37 @@
 import { Bill, CardTransaction } from "./models";
-import { Context } from "./context";
+import { AuthType, Context } from "./context";
+import { RequiresAuth } from "./utils/decorators";
 
 export class Card {
+
+  public get context(): Context {
+    return this._context;
+  }
+
   public constructor(private _context: Context) {}
 
+  @RequiresAuth(AuthType.CERT, AuthType.WEB)
   public getFeed(): Promise<CardTransaction[]> {
     return this._context.http
       .request("get", "events")
       .then((data) => data.events);
   }
 
+  @RequiresAuth(AuthType.CERT, AuthType.WEB)
   public getTransactions(): Promise<CardTransaction[]> {
     return this.getFeed().then((feed) =>
       feed.filter((statement) => statement.category === "transaction")
     );
   }
 
+  @RequiresAuth(AuthType.CERT, AuthType.WEB)
   public getPayments(): Promise<any[]> {
     return this.getFeed().then((feed) =>
       feed.filter((statement) => statement.category === "payment")
     );
   }
 
+  @RequiresAuth(AuthType.CERT, AuthType.WEB)
   public async getBills(options: {
     getFutureBillsDetails?: boolean;
     billsAfterDueDate?: Date;
@@ -57,6 +67,7 @@ export class Card {
     );
   }
 
+  @RequiresAuth(AuthType.CERT, AuthType.WEB)
   public async getBillDetails(bill: Bill): Promise<Bill> {
     const url: string = bill?._links?.self?.href ?? "";
     if (!url) {

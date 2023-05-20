@@ -1,10 +1,17 @@
 import { Boleto, MoneyRequest, PixKey, PixPaymentRequest } from "./models";
-import { Context } from "./context";
+import { AuthType, Context } from "./context";
 import * as GqlOperations from "./utils/graphql-operations";
+import { RequiresAuth } from "./utils/decorators";
 
 export class Payment {
+
+  public get context(): Context {
+    return this._context;
+  }
+
   public constructor(private _context: Context) {}
 
+  @RequiresAuth(AuthType.CERT)
   public async createBoleto(amount: number): Promise<Boleto> {
     const customerId: string = await this._context.account.getCustomerId();
 
@@ -20,6 +27,7 @@ export class Payment {
     return boletoData?.createTransferInBoleto?.boleto;
   }
 
+  @RequiresAuth(AuthType.CERT)
   public async createMoneyRequest(amount: number): Promise<MoneyRequest> {
     const savingsAccountId: string = await this._context.account.getId();
 
@@ -35,6 +43,7 @@ export class Payment {
     return moneyRequestData?.createMoneyRequest;
   }
 
+  @RequiresAuth(AuthType.CERT)
   public async createPixPaymentRequest(
     pixKey: PixKey,
     amount: number
