@@ -3,7 +3,6 @@ import { AuthType, Context } from "./context";
 import { RequiresAuth } from "./utils/decorators";
 
 export class Card {
-
   public get context(): Context {
     return this._context;
   }

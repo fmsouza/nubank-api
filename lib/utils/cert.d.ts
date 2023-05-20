@@ -1,8 +1,8 @@
 /// <reference types="node" />
 import { asn1, pki } from "node-forge";
-export declare type Certificate = pki.Certificate;
-export declare type KeyPair = pki.rsa.KeyPair;
-export declare type Pkcs12Asn1 = asn1.Asn1;
+export type Certificate = pki.Certificate;
+export type KeyPair = pki.rsa.KeyPair;
+export type Pkcs12Asn1 = asn1.Asn1;
 export declare function parseAuthenticationHeader(content: string): Map<string, string>;
 export declare function generateKeyPair(): KeyPair;
 export declare function serializePublicKey(publicKey: pki.rsa.PublicKey): string;

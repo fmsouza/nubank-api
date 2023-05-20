@@ -6,8 +6,8 @@ import { Card } from "./card";
 import { Payment } from "./payment";
 
 export const enum AuthType {
-  WEB = 'Web',
-  CERT = 'Certificate',
+  WEB = "Web",
+  CERT = "Certificate",
 }
 
 export class Context {

@@ -1,15 +1,11 @@
-/// <reference types="node" />
-import { AuthState, Http, Routes } from "./utils/http";
+import { AuthState, HttpClient, HttpClientConstructor } from "./http";
 import { Auth } from "./auth";
 import { Account } from "./account";
 import { Card } from "./card";
 import { Payment } from "./payment";
-interface NubankApiConstructor {
-    clientName?: string;
-    cert?: Buffer;
-    accessToken?: string;
-    privateUrls?: Routes;
-    publicUrls?: Record<string, string>;
+export declare const enum AuthType {
+    WEB = "Web",
+    CERT = "Certificate"
 }
 export declare class Context {
     private _http;
@@ -17,12 +13,13 @@ export declare class Context {
     private _account;
     private _card;
     private _payment;
-    constructor(params?: NubankApiConstructor);
+    private _authType;
+    constructor(params?: HttpClientConstructor);
+    get authType(): AuthType;
     get authState(): AuthState;
-    get http(): Http;
+    get http(): HttpClient;
     get auth(): Auth;
     get account(): Account;
     get card(): Card;
     get payment(): Payment;
 }
-export {};

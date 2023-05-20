@@ -1,10 +1,5 @@
 import { PAYMENT_EVENT_TYPES } from "./constants";
-import {
-  AccountTransaction,
-  Customer,
-  Investment,
-  PixKey,
-} from "./models";
+import { AccountTransaction, Customer, Investment, PixKey } from "./models";
 import { AuthType, Context } from "./context";
 import * as GqlOperations from "./utils/graphql-operations";
 import { parseGenericTransaction } from "./utils/parsing";
@@ -66,7 +61,7 @@ export class Account {
   }
 
   /**
-   * 
+   *
    * @deprecated Use getFeedPaginated instead
    */
   @RequiresAuth(AuthType.CERT)
@@ -78,7 +73,7 @@ export class Account {
   }
 
   /**
-   * 
+   *
    * @deprecated Use getTransactionsPaginated instead
    */
   @RequiresAuth(AuthType.CERT)
@@ -91,20 +86,28 @@ export class Account {
   }
 
   @RequiresAuth(AuthType.CERT)
-  public async getFeedPaginated(cursor?: string): Promise<{items: AccountTransaction[], nextCursor?: string}> {
+  public async getFeedPaginated(
+    cursor?: string
+  ): Promise<{ items: AccountTransaction[]; nextCursor?: string }> {
     const { data } = await this._context.http.graphql(
       GqlOperations.QUERY_ACCOUNT_FEED_PAGINATED,
       { cursor }
     );
     const { feedItems } = data?.viewer?.savingsAccount ?? {};
-    const items = feedItems?.edges.map((edge: any) => parseGenericTransaction(edge.node)) ?? [];
-    const nextCursor = feedItems?.pageInfo?.hasNextPage ? feedItems?.edges?.slice(-1)[0]?.cursor : undefined;
+    const items =
+      feedItems?.edges.map((edge: any) => parseGenericTransaction(edge.node)) ??
+      [];
+    const nextCursor = feedItems?.pageInfo?.hasNextPage
+      ? feedItems?.edges?.slice(-1)[0]?.cursor
+      : undefined;
 
     return { items, nextCursor };
   }
 
   @RequiresAuth(AuthType.CERT)
-  public getTransactionsPaginated(cursor?: string): Promise<AccountTransaction[]> {
+  public getTransactionsPaginated(
+    cursor?: string
+  ): Promise<AccountTransaction[]> {
     return this.getFeedPaginated(cursor).then(({ items }) =>
       items.filter((statement) => statement.amount! > 0)
     );

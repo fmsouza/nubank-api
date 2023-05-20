@@ -4,9 +4,9 @@ import { DISCOVERY_APP_URL, DISCOVERY_URL, HEADERS } from "../constants";
 
 type Route = {
   href: string;
-}
+};
 
-type Env = 'node' | 'rn' | 'web';
+type Env = "node" | "rn" | "web";
 
 export type Routes = Record<string, Route>;
 
@@ -16,7 +16,7 @@ export type AuthState = {
   refreshBefore?: Date;
   privateUrls: Routes;
   publicUrls: Record<string, string>;
-}
+};
 
 export type HttpClientConstructor = {
   clientName?: string;
@@ -27,7 +27,7 @@ export type HttpClientConstructor = {
   privateUrls?: Routes;
   publicUrls?: Record<string, string>;
   env?: Env;
-}
+};
 
 export class HttpClient {
   private _clientName: string;
@@ -81,7 +81,7 @@ export class HttpClient {
     this.refreshBefore = params?.refreshBefore ?? "";
     this._privateUrls = params?.privateUrls ?? {};
     this._publicUrls = params?.publicUrls ?? {};
-    this._env = params?.env ?? 'node';
+    this._env = params?.env ?? "node";
   }
 
   public async ready(): Promise<void> {

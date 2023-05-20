@@ -1,11 +1,11 @@
 /// <reference types="node" />
 import { Context } from "./context";
-declare type RequestAuthenticationCodeInput = {
+type RequestAuthenticationCodeInput = {
     cpf: string;
     password: string;
     deviceId: string;
 };
-declare type ExchangeCertificatesInput = RequestAuthenticationCodeInput & {
+type ExchangeCertificatesInput = RequestAuthenticationCodeInput & {
     authCode: string;
 };
 export declare class Auth {
@@ -13,6 +13,7 @@ export declare class Auth {
     private _keyPair;
     private _keyPairCrypto;
     private _encryptedCode;
+    get context(): Context;
     constructor(_context: Context);
     private authenticate;
     authenticateWithQrCode(cpf: string, password: string, qrCodeId: string): Promise<void>;

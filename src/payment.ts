@@ -4,7 +4,6 @@ import * as GqlOperations from "./utils/graphql-operations";
 import { RequiresAuth } from "./utils/decorators";
 
 export class Payment {
-
   public get context(): Context {
     return this._context;
   }
