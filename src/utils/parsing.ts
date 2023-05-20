@@ -19,9 +19,9 @@ type GenericTransaction = {
 
 function findAmount(transaction: GenericTransaction): number {
   let amountSource = '0';
-  if (transaction.detail.includes('R$')) {
+  if (transaction.detail?.includes('R$')) {
     amountSource = transaction.detail.split('R$')[1].trim();
-  } else if (transaction.footer.includes('R$')) {
+  } else if (transaction.footer?.includes('R$')) {
     amountSource = transaction.footer.split('R$')[1].trim();
   }
   amountSource = amountSource?.replace('.', '').replace(',', '.');
