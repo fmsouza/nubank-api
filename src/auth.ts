@@ -49,13 +49,7 @@ export class Auth {
     qrCodeId: string
   ): Promise<void> {
     await this.authenticate(cpf, password);
-
-    const data = await this._context.http.request("post", "lift", {
-      qr_code_id: qrCodeId,
-      type: "login-webapp",
-    });
-
-    this.updateAuthState(data);
+    await this.checkQrCodeIsAuthorized(qrCodeId);
   }
 
   public async authenticateWithCertificate(
@@ -116,6 +110,16 @@ export class Auth {
       parsed.get("device-authorization_encrypted-code") ?? "";
 
     return parsed.get("sent-to") ?? "";
+  }
+
+  public async checkQrCodeIsAuthorized(qr_code_id: string) {
+
+    const data = await this._context.http.request("post", "lift", {
+        qr_code_id: qr_code_id,
+        type: "login-webapp",
+    });
+
+    this.updateAuthState(data);
   }
 
   public async exchangeCertificates({
